@@ -1,0 +1,40 @@
+package io.silv.hsrdmgcalc
+
+object HonkaiConstants {
+
+    val characters = listOf(
+        "Bailu",
+        "Blade",
+        "Bronya",
+        "Clara",
+        "DanHengImbibitorLunae",
+        "Fuxuan",
+        "Gepard",
+        "Himeko",
+        "Jingyuan",
+        "Jingliu",
+        "Kafka",
+        "Luocha",
+        "Seele",
+        "Silverwolf",
+        "Trailblazer",
+        "Welt",
+        "Yanqing",
+        "Arlan",
+        "Asta",
+        "DanHeng",
+        "Herta",
+        "Hook",
+        "Luka",
+        "Lynx",
+        "March7th",
+        "Natasha",
+        "Pela",
+        "Qingque",
+        "Sampo",
+        "Serval",
+        "Sushang",
+        "Tingyun",
+        "Yukong",
+    )
+}
