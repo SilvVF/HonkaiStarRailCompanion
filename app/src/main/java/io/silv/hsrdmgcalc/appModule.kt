@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import org.koin.dsl.module
 
+
 val appModule = module {
 
     includes(
@@ -24,8 +25,6 @@ val appModule = module {
     }
 
     single<ApplicationScope> {
-        object : ApplicationScope {
-            override val scope = GlobalScope
-        }
+        GlobalScope
     }
 }

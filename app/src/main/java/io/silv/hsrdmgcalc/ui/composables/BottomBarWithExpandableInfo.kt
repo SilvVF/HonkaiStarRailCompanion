@@ -1,7 +1,9 @@
 package io.silv.hsrdmgcalc.ui.composables
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
@@ -10,18 +12,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.SheetValue.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.*
 import androidx.compose.runtime.setValue
@@ -31,7 +34,10 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import io.silv.hsrdmgcalc.ui.AppState
+import io.silv.hsrdmgcalc.ui.HsrDestination
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -54,46 +60,84 @@ private fun Modifier.conditional(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomBarWithDraggableContent(
-    bottomBarState: DraggableBottomBarState,
+    appState: AppState,
     navBarHeight: Dp,
-    peekContent: @Composable (Modifier) -> Unit,
-    content: @Composable () -> Unit,
 ) {
+    val selectedDest by appState.currentDestination.collectAsState(initial = HsrDestination.Character)
     val density = LocalDensity.current
+
     Column {
-        Column(
-            Modifier
-                .fillMaxWidth()
-                .snapToPositionDraggable(state = bottomBarState)
-        ) {
-            peekContent(
-                Modifier.onSizeChanged {
-                    if (it.height > 0) {
-                        bottomBarState.peekHeight = with(density){
-                            it.height.toDp().value.roundToInt().toFloat()
-                        }
+        var showBottomBarContent by rememberSaveable {
+            mutableStateOf(false)
+        }
+
+        val hasContent by remember {
+            derivedStateOf {
+                appState.draggableContent != null || appState.draggablePeekContent != null
+            }
+        }
+
+        LaunchedEffect(appState.bottomBarState.progress) {
+            when (appState.bottomBarState.progress) {
+                Hidden -> {
+                    if(appState.bottomBarState.progress == Hidden && !appState.bottomBarState.dragInProgress) {
+                        showBottomBarContent = false
                     }
                 }
-            )
-            content()
+                Expanded -> showBottomBarContent = true
+                PartiallyExpanded -> showBottomBarContent = true
+            }
+        }
+        // TODO: Look into using a layout to solve below
+        // Using animated visibility to allow the content time to be measured through the modifier.
+        // This should maybe be a custom layout to avoid needing to do this.
+        // Without the animated visibility the content has a snapping effect that is noticeable every time it is changed.
+        AnimatedVisibility(
+            visible = showBottomBarContent && hasContent
+        ) {
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .snapToPositionDraggable(
+                        state = appState.bottomBarState,
+                    )
+            ) {
+                appState.draggablePeekContent?.invoke(
+                    Modifier.onSizeChanged {
+                        if (it.height > 0) {
+                            appState.bottomBarState.peekHeight = with(density){
+                                it.height.toDp().value.roundToInt().toFloat()
+                            }
+                        }
+                    }
+                )
+                appState.draggableContent?.invoke()
+            }
         }
         BottomAppBar(
             Modifier.height(navBarHeight)
         ) {
-            IconButton(
-                onClick = {
-                    bottomBarState.snapProgressTo(
-                        when(bottomBarState.progress) {
-                            Hidden -> PartiallyExpanded
-                            Expanded -> Hidden
-                            PartiallyExpanded -> Expanded
-                        }
-                    )
-                }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Home,
-                    contentDescription = "Home"
+            appState.destinations.forEach { dest ->
+                NavigationBarItem(
+                    selected = selectedDest == dest,
+                    onClick = {
+                        appState.bottomBarState.snapProgressTo(
+                            when(appState.bottomBarState.progress) {
+                                Hidden -> PartiallyExpanded
+                                Expanded -> Hidden
+                                PartiallyExpanded -> Expanded
+                            }
+                        )
+                    },
+                    icon = {
+                        Image(
+                            painter = if(dest == selectedDest)
+                                dest.selectedIcon()
+                            else
+                                dest.unselectedIcon(),
+                            contentDescription = null
+                        )
+                    }
                 )
             }
         }
@@ -115,7 +159,7 @@ private fun Modifier.snapToPositionDraggable(
 
     val height by animateDpAsState(
         targetValue = state.peekHeight.dp,
-        label = ""
+        label = "height-anim"
     )
 
     // setting height to 0.dp while hidden to avoid
@@ -154,9 +198,12 @@ private fun Modifier.snapToPositionDraggable(
             },
             ifFalse = {
                 wrapContentHeight()
-                offset(
-                    y = state.offset.value.dp
-                )
+                offset {
+                    IntOffset(
+                        x = 0,
+                        y = state.offset.value.dp.roundToPx()
+                    )
+                }
             }
         )
 }
@@ -167,7 +214,7 @@ private fun Modifier.snapToPositionDraggable(
 @Composable
 fun rememberDraggableBottomBarState(
     scope: CoroutineScope = rememberCoroutineScope(),
-    start: SheetValue = PartiallyExpanded
+    start: SheetValue = Hidden
 ) = rememberSaveable(
     scope,
     start,
@@ -188,7 +235,7 @@ fun rememberDraggableBottomBarState(
 @OptIn(ExperimentalMaterial3Api::class)
 class DraggableBottomBarState(
     private val scope: CoroutineScope,
-    start: SheetValue = PartiallyExpanded
+    start: SheetValue = Hidden
 ) {
 
     var maxHeight by mutableFloatStateOf(Float.MAX_VALUE)
@@ -242,9 +289,6 @@ class DraggableBottomBarState(
 
     fun snapProgressTo(sheetValue: SheetValue) {
         scope.launch {
-            // order matters here, if the progress is not set first when prev hidden
-            // the height will not animate from the hidden state.
-            // it is set to 0.dp while hidden to avoid detecting any swipe gestures.
             if (sheetValue != Hidden)
                 progress = sheetValue
             when (sheetValue) {

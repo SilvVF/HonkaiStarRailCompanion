@@ -8,11 +8,10 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,10 +20,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FilterList
@@ -37,12 +32,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.SheetValue
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -52,25 +47,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
+import androidx.navigation.compose.rememberNavController
+import io.silv.hsrdmgcalc.ui.Navigation
 import io.silv.hsrdmgcalc.ui.composables.BottomBarWithDraggableContent
-import io.silv.hsrdmgcalc.ui.composables.CardType
-import io.silv.hsrdmgcalc.ui.composables.CompactCharacterCard
-import io.silv.hsrdmgcalc.ui.composables.DisplayOptionsBottomSheet
-import io.silv.hsrdmgcalc.ui.composables.ExtraCompactCharacterCard
 import io.silv.hsrdmgcalc.ui.composables.SearchTopAppBar
-import io.silv.hsrdmgcalc.ui.composables.Type
-import io.silv.hsrdmgcalc.ui.composables.pathFilterRow
 import io.silv.hsrdmgcalc.ui.composables.rememberDraggableBottomBarState
-import io.silv.hsrdmgcalc.ui.composables.typeFilterRow
-import io.silv.hsrdmgcalc.ui.screens.character.CharacterViewModel
+import io.silv.hsrdmgcalc.ui.rememberAppState
 import io.silv.hsrdmgcalc.ui.theme.HsrDmgCalcTheme
-import org.koin.androidx.compose.koinViewModel
+
+val LocalPaddingValues = compositionLocalOf<PaddingValues> { error("not provided yet") }
+val LocalNavBarHeight = compositionLocalOf<Dp> { error("not provided yet") }
 
 class MainActivity : ComponentActivity() {
 
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -78,8 +71,6 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             HsrDmgCalcTheme {
-
-                val characterViewModel = koinViewModel<CharacterViewModel>()
 
                 val bottomBarState = rememberDraggableBottomBarState()
                 val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
@@ -92,19 +83,9 @@ class MainActivity : ComponentActivity() {
                     mutableStateOf("")
                 }
 
-                var displayOptionsBottomSheetVisible by rememberSaveable {
-                    mutableStateOf(false)
-                }
-
-                val displayPrefs by characterViewModel.displayPrefs.collectAsState()
-
-                DisplayOptionsBottomSheet(
-                    visible = displayOptionsBottomSheetVisible,
-                    onDismissRequest = { displayOptionsBottomSheetVisible = false },
-                    onGridSizeSelected = characterViewModel::updateGridCellCount,
-                    gridCells = displayPrefs.gridCells,
-                    onCardTypeSelected = characterViewModel::updateCardType,
-                    cardType = displayPrefs.cardType
+                val appState = rememberAppState(
+                    navController = rememberNavController(),
+                    bottomBarState = bottomBarState
                 )
 
                 Scaffold(
@@ -138,67 +119,16 @@ class MainActivity : ComponentActivity() {
                     },
                     bottomBar = {
                         BottomBarWithDraggableContent(
-                            bottomBarState = bottomBarState,
                             navBarHeight = navBarHeight,
-                            peekContent = {
-                                Column(modifier = it) {
-                                    LazyRow(modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(bottom = 6.dp)) {
-                                        typeFilterRow { type ->
-
-                                        }
-                                    }
-                                    LazyRow(modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(bottom = 6.dp)) {
-                                        pathFilterRow { path ->
-
-                                        }
-                                    }
-                                }
-                            },
-                            content = {
-                                ExpandedBottomBarContent {
-                                    displayOptionsBottomSheetVisible = true
-                                }
-                            }
+                            appState = appState,
                         )
                     }
                 ) { paddingValues ->
-                    Surface(
-                        Modifier
-                            .padding(
-                                top = paddingValues.calculateTopPadding(),
-                                start = paddingValues.calculateStartPadding(LocalLayoutDirection.current),
-                                end = paddingValues.calculateEndPadding(LocalLayoutDirection.current),
-                                bottom = navBarHeight
-                            )
-                            .fillMaxSize()
+                    CompositionLocalProvider(
+                        LocalPaddingValues provides paddingValues,
+                        LocalNavBarHeight provides navBarHeight
                     ) {
-                        LazyVerticalGrid(
-                            columns = GridCells.Fixed(displayPrefs.gridCells),
-                        ) {
-                            itemsIndexed(HonkaiConstants.characters) { i, character ->
-                                when (displayPrefs.cardType) {
-                                    CardType.Full,
-                                    CardType.List,
-                                    CardType.SemiCompact,
-                                    CardType.Compact -> CompactCharacterCard(
-                                        modifier = Modifier.padding(6.dp).fillMaxWidth(),
-                                        character = character,
-                                        type = Type.values().random(),
-                                        fiveStar = i < 17
-                                    ){}
-                                    CardType.ExtraCompact -> ExtraCompactCharacterCard(
-                                        modifier = Modifier.padding(6.dp).fillMaxWidth(),
-                                        character = character,
-                                        type = Type.values().random(),
-                                        fiveStar = i < 17
-                                    ){}
-                                }
-                            }
-                        }
+                        Navigation(appState = appState)
                     }
                 }
             }

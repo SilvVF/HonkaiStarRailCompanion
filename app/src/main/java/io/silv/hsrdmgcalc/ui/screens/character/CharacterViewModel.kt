@@ -6,17 +6,14 @@ import io.silv.hsrdmgcalc.ApplicationScope
 import io.silv.hsrdmgcalc.prefrences.DisplayPreferences
 import io.silv.hsrdmgcalc.prefrences.DisplayPrefs
 import io.silv.hsrdmgcalc.ui.composables.CardType
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class CharacterViewModel(
-    appScope: ApplicationScope,
+    private val applicationScope: ApplicationScope,
     private val displayPreferences: DisplayPreferences,
 ): ViewModel() {
-
-    private val applicationScope: CoroutineScope = appScope.scope
 
     val displayPrefs = displayPreferences.observePrefs()
         .stateIn(
