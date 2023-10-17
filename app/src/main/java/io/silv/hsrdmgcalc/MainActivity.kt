@@ -31,7 +31,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
-import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
@@ -54,7 +53,6 @@ import androidx.navigation.compose.rememberNavController
 import io.silv.hsrdmgcalc.ui.Navigation
 import io.silv.hsrdmgcalc.ui.composables.BottomBarWithDraggableContent
 import io.silv.hsrdmgcalc.ui.composables.SearchTopAppBar
-import io.silv.hsrdmgcalc.ui.composables.rememberDraggableBottomBarState
 import io.silv.hsrdmgcalc.ui.rememberAppState
 import io.silv.hsrdmgcalc.ui.theme.HsrDmgCalcTheme
 
@@ -72,7 +70,6 @@ class MainActivity : ComponentActivity() {
         setContent {
             HsrDmgCalcTheme {
 
-                val bottomBarState = rememberDraggableBottomBarState()
                 val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
                 val navBarHeight = 75.dp
 
@@ -85,7 +82,6 @@ class MainActivity : ComponentActivity() {
 
                 val appState = rememberAppState(
                     navController = rememberNavController(),
-                    bottomBarState = bottomBarState
                 )
 
                 Scaffold(
@@ -101,12 +97,7 @@ class MainActivity : ComponentActivity() {
                             actions = {
                                 IconButton(
                                     onClick = {
-                                        bottomBarState.snapProgressTo(
-                                            if (bottomBarState.progress == SheetValue.Hidden)
-                                                SheetValue.Expanded
-                                            else
-                                                SheetValue.Hidden
-                                        )
+                                        appState.bottomBarState.toggleProgress()
                                     }
                                 ) {
                                     Icon(imageVector = Icons.Filled.FilterList, null)

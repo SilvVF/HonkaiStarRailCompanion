@@ -31,9 +31,9 @@ import kotlin.math.roundToInt
 enum class CardType(val string: String) {
     Full("Full Card"),
     List("List"),
-    Compact("Compact Grid"),
-    ExtraCompact("Extra-Compact Grid"),
-    SemiCompact("Semi-Compact Grid")
+    SemiCompact("Semi-Compact Card"),
+    Compact("Compact Card"),
+    ExtraCompact("Extra-Compact Card")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -57,20 +57,21 @@ fun DisplayOptionsBottomSheet(
             sheetState.hide()
     }
 
-    if (visible)
-    ModalBottomSheet(
-        onDismissRequest = onDismissRequest,
-    ) {
-        SelectCardType(
-            cardType = cardType,
-            onCardTypeSelected = onCardTypeSelected
-        )
-        GridSizeSelector(
-            Modifier.fillMaxWidth(),
-            onSizeSelected = onGridSizeSelected,
-            size = gridCells
-        )
-        Spacer(Modifier.height(32.dp))
+    if (visible) {
+        ModalBottomSheet(
+            onDismissRequest = onDismissRequest,
+        ) {
+            SelectCardType(
+                cardType = cardType,
+                onCardTypeSelected = onCardTypeSelected
+            )
+            GridSizeSelector(
+                Modifier.fillMaxWidth(),
+                onSizeSelected = onGridSizeSelected,
+                size = gridCells
+            )
+            Spacer(Modifier.height(32.dp))
+        }
     }
 }
 

@@ -6,11 +6,13 @@ import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,10 +28,13 @@ import io.silv.hsrdmgcalc.HonkaiConstants
 import io.silv.hsrdmgcalc.LocalNavBarHeight
 import io.silv.hsrdmgcalc.LocalPaddingValues
 import io.silv.hsrdmgcalc.ui.AppState
+import io.silv.hsrdmgcalc.ui.HsrDestination
 import io.silv.hsrdmgcalc.ui.composables.CardType
 import io.silv.hsrdmgcalc.ui.composables.CompactCharacterCard
 import io.silv.hsrdmgcalc.ui.composables.DisplayOptionsBottomSheet
 import io.silv.hsrdmgcalc.ui.composables.ExtraCompactCharacterCard
+import io.silv.hsrdmgcalc.ui.composables.LaunchedOnSelectedDestinationClick
+import io.silv.hsrdmgcalc.ui.composables.SemiCompactCharacterCard
 import io.silv.hsrdmgcalc.ui.composables.Type
 import io.silv.hsrdmgcalc.ui.composables.UpdateAppBar
 import io.silv.hsrdmgcalc.ui.composables.pathFilterRow
@@ -51,6 +56,7 @@ fun CharacterScreen(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CharacterScreenContent(
     paddingValues: PaddingValues,
@@ -65,6 +71,10 @@ fun CharacterScreenContent(
         mutableStateOf(false)
     }
 
+    LaunchedOnSelectedDestinationClick(appState = appState, destination = HsrDestination.Character) {
+        appState.bottomBarState.toggleProgress()
+    }
+
     UpdateAppBar(
         appState,
         peekContent = {
@@ -72,6 +82,7 @@ fun CharacterScreenContent(
                 LazyRow(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .heightIn(38.dp)
                         .padding(bottom = 6.dp)
                 ) {
                     typeFilterRow { type ->
@@ -80,6 +91,7 @@ fun CharacterScreenContent(
                 }
                 LazyRow(modifier = Modifier
                     .fillMaxWidth()
+                    .heightIn(38.dp)
                     .padding(bottom = 6.dp)) {
                     pathFilterRow { path ->
 
@@ -91,7 +103,7 @@ fun CharacterScreenContent(
             ExpandedBottomBarContent {
                 displayOptionsBottomSheetVisible = true
             }
-        }
+        },
     )
 
     DisplayOptionsBottomSheet(
@@ -117,10 +129,22 @@ fun CharacterScreenContent(
             columns = GridCells.Fixed(appState.displayPrefs.gridCells),
         ) {
             itemsIndexed(HonkaiConstants.characters) { i, character ->
+                val path = listOf(
+                    "destruction", "thehunt", "erudition", "harmony" ,
+                    "nihility" , "preservation", "abundance"
+                ).random()
                 when (appState.displayPrefs.cardType) {
                     CardType.Full,
                     CardType.List,
-                    CardType.SemiCompact,
+                    CardType.SemiCompact -> SemiCompactCharacterCard(
+                        modifier = Modifier
+                            .padding(6.dp)
+                            .fillMaxWidth(),
+                        character = character,
+                        type = Type.values().random(),
+                        path = path,
+                        fiveStar = i < 17
+                    ) {}
                     CardType.Compact -> CompactCharacterCard(
                         modifier = Modifier
                             .padding(6.dp)
