@@ -46,7 +46,8 @@ class AppState(
 
     var topAppBar by mutableStateOf<@Composable () -> Unit>({})
 
-    val destinationTappedActions = mutableStateMapOf<HsrDestination, List<suspend () -> Unit>>()
+    val destinationTappedActions =
+        mutableStateMapOf<HsrDestination, List<Pair<UUID, suspend () -> Unit>>>()
 
     val destinations = persistentListOf<HsrDestination>(
         HsrDestination.Character,
@@ -83,14 +84,21 @@ class AppState(
         return UUID.randomUUID().also { prevId = it }
     }
 
-    fun onDestinationClick(destination: HsrDestination, action: suspend () -> Unit) {
+    fun onDestinationClick(
+        destination: HsrDestination,
+        action: suspend () -> Unit
+    ): UUID {
+        val id = UUID.randomUUID()
         destinationTappedActions[destination] =
-            (destinationTappedActions[destination] ?: emptyList()) + action
+            (destinationTappedActions[destination] ?: emptyList()) + (id to action )
+        return id
     }
 
-    fun removeOnDestinationClick(destination: HsrDestination, action: suspend () -> Unit) {
+    fun removeOnDestinationClick(destination: HsrDestination,id: UUID) {
         destinationTappedActions[destination] =
-            (destinationTappedActions[destination] ?: emptyList()) - action
+            destinationTappedActions
+                .getOrDefault(destination, emptyList())
+                .filter { (actionId, _) -> actionId != id }
     }
 
     @OptIn(ExperimentalMaterial3Api::class)

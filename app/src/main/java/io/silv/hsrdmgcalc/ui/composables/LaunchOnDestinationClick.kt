@@ -17,10 +17,10 @@ fun LaunchedOnSelectedDestinationClick(
     val onClick by rememberUpdatedState(action)
 
     DisposableEffect(key1 = Unit) {
-        appState.onDestinationClick(
+        val id = appState.onDestinationClick(
             destination,
             onClick
         )
-        onDispose { appState.removeOnDestinationClick(destination, onClick) }
+        onDispose { appState.removeOnDestinationClick(destination, id) }
     }
 }

@@ -1,5 +1,9 @@
 package io.silv.hsrdmgcalc.ui.composables
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.height
@@ -25,19 +29,23 @@ fun BottomBarWithDraggableContent(
     val scope = rememberCoroutineScope()
 
     Column {
-        ExpandableInfoLayout(
-            appState.bottomBarState,
-            peekContent = {
-                Box {
-                    appState.draggablePeekContent?.invoke()
-                }
-            },
-            content = {
-                Box {
-                    appState.draggableContent?.invoke()
-                }
+        AnimatedContent(
+            targetState = appState.draggableContent to appState.draggablePeekContent,
+            label = "bottom-bar-content",
+            transitionSpec = {
+                fadeIn() togetherWith fadeOut()
             }
-        )
+        ) { (content, peek) ->
+            ExpandableInfoLayout(
+                appState.bottomBarState,
+                peekContent = {
+                    Box { peek?.invoke() }
+                },
+                content = {
+                    Box { content?.invoke() }
+                }
+            )
+        }
         BottomAppBar(
             Modifier.height(navBarHeight)
         ) {
@@ -46,7 +54,7 @@ fun BottomBarWithDraggableContent(
                     selected = selectedDest == dest,
                     onClick = {
                         if (selectedDest == dest) {
-                            for (action in appState.destinationTappedActions[dest] ?: emptyList()) {
+                            for ((_, action) in appState.destinationTappedActions[dest] ?: emptyList()) {
                                 scope.launch {
                                     action.invoke()
                                 }
