@@ -29,8 +29,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import io.silv.hsrdmgcalc.HonkaiConstants
 import io.silv.hsrdmgcalc.R
+import io.silv.hsrdmgcalc.data.HonkaiConstants
 import io.silv.hsrdmgcalc.ui.theme.HsrDmgCalcTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -39,7 +39,7 @@ fun SemiCompactCharacterCard(
     modifier: Modifier,
     character: String,
     type: Type,
-    path: String,
+    path: Path,
     fiveStar: Boolean,
     onClick: () -> Unit
 ) {

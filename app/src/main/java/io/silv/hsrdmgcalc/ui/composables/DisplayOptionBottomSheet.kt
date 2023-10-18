@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -25,7 +26,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEachIndexed
-import kotlinx.collections.immutable.toImmutableList
 import kotlin.math.roundToInt
 
 enum class CardType(val string: String) {
@@ -44,6 +44,8 @@ fun DisplayOptionsBottomSheet(
     onGridSizeSelected: (Int) -> Unit,
     gridCells: Int,
     cardType: CardType,
+    animatePlacement: Boolean,
+    onAnimatePlacementChanged: (Boolean) -> Unit,
     onCardTypeSelected: (CardType) -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(
@@ -59,6 +61,7 @@ fun DisplayOptionsBottomSheet(
 
     if (visible) {
         ModalBottomSheet(
+            sheetState = sheetState,
             onDismissRequest = onDismissRequest,
         ) {
             SelectCardType(
@@ -70,9 +73,39 @@ fun DisplayOptionsBottomSheet(
                 onSizeSelected = onGridSizeSelected,
                 size = gridCells
             )
+            AnimatePlacementCheckBox(
+                animatePlacement = animatePlacement,
+                onCheckChanged = onAnimatePlacementChanged,
+                modifier = Modifier.fillMaxWidth()
+            )
             Spacer(Modifier.height(32.dp))
         }
     }
+}
+
+@Composable
+fun AnimatePlacementCheckBox(
+    animatePlacement: Boolean,
+    onCheckChanged: (Boolean) -> Unit,
+    modifier: Modifier
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Start
+    ) {
+        Checkbox(
+            checked = animatePlacement,
+            onCheckedChange = onCheckChanged,
+            enabled = true
+        )
+        Spacer(modifier = Modifier.width(6.dp))
+        Text(
+            text = "Animate card placement",
+            style = MaterialTheme.typography.titleSmall
+        )
+    }
+
 }
 
 @Composable
@@ -80,7 +113,7 @@ fun SelectCardType(
     cardType: CardType,
     onCardTypeSelected: (CardType) -> Unit
 ) {
-    val types = remember { CardType.values().toList().toImmutableList() }
+    val types = remember { CardType.values().toList() }
 
     types.fastForEachIndexed { i, type ->
         if (i == 2) {

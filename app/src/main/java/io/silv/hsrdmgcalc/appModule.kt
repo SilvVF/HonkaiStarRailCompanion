@@ -1,6 +1,7 @@
 package io.silv.hsrdmgcalc
 
-import io.silv.hsrdmgcalc.prefrences.preferencesModule
+import io.silv.hsrdmgcalc.data.dataModule
+import io.silv.hsrdmgcalc.preferences.preferencesModule
 import io.silv.hsrdmgcalc.ui.screens.viewModelModule
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -12,10 +13,11 @@ val appModule = module {
 
     includes(
         preferencesModule,
-        viewModelModule
+        viewModelModule,
+        dataModule
     )
 
-    single {
+    single<AppDispatchers> {
         object: AppDispatchers {
             override val io: CoroutineDispatcher = Dispatchers.IO
             override val main: CoroutineDispatcher = Dispatchers.Main

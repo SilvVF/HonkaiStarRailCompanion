@@ -22,25 +22,17 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.outlined.More
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -52,7 +44,6 @@ import androidx.core.view.WindowCompat
 import androidx.navigation.compose.rememberNavController
 import io.silv.hsrdmgcalc.ui.Navigation
 import io.silv.hsrdmgcalc.ui.composables.BottomBarWithDraggableContent
-import io.silv.hsrdmgcalc.ui.composables.SearchTopAppBar
 import io.silv.hsrdmgcalc.ui.rememberAppState
 import io.silv.hsrdmgcalc.ui.theme.HsrDmgCalcTheme
 
@@ -70,15 +61,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             HsrDmgCalcTheme {
 
-                val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
                 val navBarHeight = 75.dp
 
-                var searching by rememberSaveable {
-                    mutableStateOf(false)
-                }
-                var searchText by rememberSaveable {
-                    mutableStateOf("")
-                }
 
                 val appState = rememberAppState(
                     navController = rememberNavController(),
@@ -89,24 +73,9 @@ class MainActivity : ComponentActivity() {
                         .exclude(WindowInsets.statusBars),
                     modifier = Modifier
                         .fillMaxSize()
-                        .nestedScroll(scrollBehavior.nestedScrollConnection),
+                        .nestedScroll(appState.topAppBar.first.nestedScrollConnection),
                     topBar = {
-                        SearchTopAppBar(
-                            onSearchText = { text -> searchText = text },
-                            showTextField = searching,
-                            actions = {
-                                IconButton(
-                                    onClick = {
-                                        appState.bottomBarState.toggleProgress()
-                                    }
-                                ) {
-                                    Icon(imageVector = Icons.Filled.FilterList, null)
-                                }
-                            },
-                            scrollBehavior = scrollBehavior,
-                            searchText = searchText,
-                            onSearchChanged = { searchState -> searching = searchState }
-                        )
+                        appState.topAppBar.second()
                     },
                     bottomBar = {
                         BottomBarWithDraggableContent(
@@ -141,6 +110,7 @@ fun ExpandedBottomBarContent(
     ) {
         Row(
             Modifier
+                .fillMaxWidth()
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -156,8 +126,9 @@ fun ExpandedBottomBarContent(
         }
         Row(
             Modifier
-                .padding(12.dp)
-                .clickable { showDisplayOptions() },
+                .fillMaxWidth()
+                .clickable { showDisplayOptions() }
+                .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(

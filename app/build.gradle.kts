@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("app.cash.sqldelight") version "2.0.0"
 }
 
 android {
@@ -49,6 +50,14 @@ android {
     }
 }
 
+sqldelight {
+    databases {
+        create("HonkaiDatabase") {
+            packageName.set("io.silv")
+        }
+    }
+}
+
 dependencies {
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
@@ -79,16 +88,13 @@ dependencies {
 
     val work_version = "2.8.1"
 
+    val nav_version = "2.7.4"
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
+    implementation("androidx.navigation:navigation-compose:$nav_version")
+
     // Kotlin + coroutines
     implementation("androidx.work:work-runtime-ktx:$work_version")
 
     // kotlin collections fast
     implementation("androidx.compose.ui:ui-util")
-    // kotlin immutable collections
-    implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.6")
-
-    implementation("androidx.datastore:datastore-preferences:1.0.0")
-
-    val nav_version = "2.7.4"
-    implementation("androidx.navigation:navigation-compose:$nav_version")
 }

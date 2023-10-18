@@ -2,6 +2,8 @@ package io.silv.hsrdmgcalc.ui
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SheetValue
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -12,11 +14,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.navigation.NavHostController
-import io.silv.hsrdmgcalc.prefrences.DisplayPreferences
-import io.silv.hsrdmgcalc.prefrences.DisplayPrefs
+import io.silv.hsrdmgcalc.preferences.DisplayPreferences
+import io.silv.hsrdmgcalc.preferences.DisplayPrefs
 import io.silv.hsrdmgcalc.ui.composables.ExpandableState
 import io.silv.hsrdmgcalc.ui.composables.rememberExpandableState
-import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -28,15 +29,17 @@ import java.util.UUID
 fun rememberAppState(
     navController: NavHostController,
     bottomBarState: ExpandableState = rememberExpandableState(startProgress = SheetValue.Hidden),
-    scope: CoroutineScope = rememberCoroutineScope()
+    scope: CoroutineScope = rememberCoroutineScope(),
+    initialTopAppBarScrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 ) = remember {
-    AppState(navController, bottomBarState, scope)
+    AppState(navController, bottomBarState, scope, initialTopAppBarScrollBehavior)
 }
 
-class AppState(
+class AppState @OptIn(ExperimentalMaterial3Api::class) constructor(
     val navController: NavHostController,
     val bottomBarState: ExpandableState,
-    private val scope: CoroutineScope
+    private val scope: CoroutineScope,
+    private val initialTopAppBarScrollBehavior: TopAppBarScrollBehavior
 ) {
     var draggablePeekContent by mutableStateOf<(@Composable () -> Unit)?>(null)
         private set
@@ -44,12 +47,15 @@ class AppState(
     var draggableContent by mutableStateOf<(@Composable () -> Unit)?>(null)
         private set
 
-    var topAppBar by mutableStateOf<@Composable () -> Unit>({})
+    @OptIn(ExperimentalMaterial3Api::class)
+    var topAppBar by mutableStateOf<Pair<TopAppBarScrollBehavior, @Composable () -> Unit>>(
+        initialTopAppBarScrollBehavior to {}
+    )
 
     val destinationTappedActions =
         mutableStateMapOf<HsrDestination, List<Pair<UUID, suspend () -> Unit>>>()
 
-    val destinations = persistentListOf<HsrDestination>(
+    val destinations = listOf<HsrDestination>(
         HsrDestination.Character,
         HsrDestination.LightCone,
         HsrDestination.Relic
@@ -72,6 +78,16 @@ class AppState(
             }
 
     private var prevId: UUID? = null
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    fun changeTopAppBar(scrollBehavior: TopAppBarScrollBehavior, topBar: @Composable () -> Unit) {
+        topAppBar = scrollBehavior to topBar
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    fun clearTopAppBar() {
+        topAppBar = initialTopAppBarScrollBehavior to {}
+    }
 
     @OptIn(ExperimentalMaterial3Api::class)
     fun changeDraggableBottomBarContent(

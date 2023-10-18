@@ -67,7 +67,7 @@ fun LazyListScope.pathFilterRow(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     PathIcon(
-                        path = item.name,
+                        path = item,
                         contentDescription = item.name,
                         modifier = Modifier.size(28.dp)
                     )

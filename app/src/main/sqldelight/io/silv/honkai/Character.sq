@@ -1,0 +1,30 @@
+import kotlin.Boolean;
+
+CREATE TABLE Character(
+    name TEXT PRIMARY KEY NOT NULL,
+    owned INTEGER AS Boolean NOT NULL DEFAULT 0,
+    level INTEGER NOT NULL DEFAULT 0,
+    trace_skill INTEGER NOT NULL DEFAULT 0,
+    trace_basic_atk INTEGER NOT NULL DEFAULT 0,
+    trace_ultimate INTEGER NOT NULL DEFAULT 0,
+    trace_technique INTEGER NOT NULL DEFAULT 0,
+    trace_talent INTEGER NOT NULL DEFAULT 0,
+    apply_stat_bonuses INTEGER AS Boolean NOT NULL DEFAULT 0
+);
+
+prepopulate:
+INSERT OR IGNORE INTO Character(name) VALUES (?);
+
+upsert:
+INSERT OR REPLACE INTO Character VALUES ?;
+
+selectAll:
+SELECT * FROM Character;
+
+selectByName:
+SELECT * FROM Character WHERE name = ?;
+
+selectWithLightCone:
+SELECT * FROM Character
+LEFT JOIN Relic ON Relic.location
+WHERE Character.name = ?;

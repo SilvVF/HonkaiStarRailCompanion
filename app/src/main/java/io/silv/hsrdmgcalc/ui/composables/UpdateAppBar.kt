@@ -5,7 +5,7 @@ import androidx.compose.runtime.DisposableEffect
 import io.silv.hsrdmgcalc.ui.AppState
 
 @Composable
-fun UpdateAppBar(
+fun UpdateBottomAppBar(
     appState: AppState,
     peekContent: @Composable () -> Unit,
     content: @Composable () -> Unit,

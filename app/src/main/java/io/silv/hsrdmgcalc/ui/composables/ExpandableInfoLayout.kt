@@ -14,13 +14,11 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
-import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -57,8 +55,6 @@ fun ExpandableInfoLayout(
     peekContent: @Composable () -> Unit,
     content: @Composable () -> Unit
 ) {
-    val scope = rememberCoroutineScope()
-
     var dragHeightOffset by remember {
         mutableFloatStateOf(0f)
     }
@@ -75,8 +71,7 @@ fun ExpandableInfoLayout(
     }
 
     val dragState = rememberDraggableState {
-        if (!handled) { return@rememberDraggableState }
-        scope.launch {
+        if (handled) {
             dragHeightOffset += it
         }
     }
@@ -90,11 +85,12 @@ fun ExpandableInfoLayout(
             .draggable(
                 dragState,
                 Orientation.Vertical,
+                onDragStarted = {
+                   dragHeightOffset = 0f
+                },
                 onDragStopped = {
-                    if (!handled) { return@draggable }
                     handled = false
                     val progress = state.progress
-
 
                     val dragEndHeight = when (progress) {
                         Expanded -> maxHeightPx
@@ -105,6 +101,8 @@ fun ExpandableInfoLayout(
                     Log.d("ExpandableInfoLayout", "${state.progress} ON Drag end  end: $dragEndHeight   max: $maxHeightPx  peek: $peekHeightPx")
 
                     Log.d("ExpandableInfoLayout", "Drag offset $dragHeightOffset")
+
+                    dragHeightOffset = 0f
 
                     state.progress = when (progress) {
                         PartiallyExpanded -> when {
@@ -119,7 +117,6 @@ fun ExpandableInfoLayout(
                         }
                         else -> progress
                     }
-                    dragHeightOffset = 0f
                     handled = true
                 }
             )
@@ -133,14 +130,14 @@ fun ExpandableInfoLayout(
         val maxHeight = placeables.sumOf { it.height }.also { maxHeightPx = it }
 
         val height = when(state.progress) {
-            Hidden -> -10f
+            Hidden -> -10
             Expanded ->
-                (maxHeight + -dragHeightOffset).coerceAtMost(maxHeight.toFloat())
+                (maxHeight + -dragHeightOffset.roundToInt()).coerceAtMost(maxHeight)
             PartiallyExpanded ->
-                (peekHeight + -dragHeightOffset).coerceAtMost(maxHeight.toFloat())
+                (peekHeight + -dragHeightOffset.roundToInt()).coerceAtMost(maxHeight)
         }
 
-        layout(constraints.maxWidth, height.roundToInt()) {
+        layout(constraints.maxWidth, height) {
 
             var y = 0
 

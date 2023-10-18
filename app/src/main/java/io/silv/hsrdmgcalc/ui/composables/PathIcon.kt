@@ -14,7 +14,7 @@ import io.silv.hsrdmgcalc.R
 
 @Composable
 fun PathIcon(
-    path: String,
+    path: Path,
     contentDescription: String?,
     modifier: Modifier = Modifier,
     alignment: Alignment = Alignment.Center,
@@ -23,7 +23,7 @@ fun PathIcon(
     colorFilter: ColorFilter? = null
 ) {
     Image(
-        painter = pathPainterResource(path = path),
+        painter = pathPainterResource(path = path.name.lowercase()),
         contentDescription = contentDescription,
         modifier = modifier,
         alignment = alignment,

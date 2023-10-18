@@ -1,0 +1,21 @@
+import kotlin.Float;
+import kotlin.Pair;
+import kotlin.String;
+import kotlin.collections.List;
+
+CREATE TABLE Relic (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    relic_set TEXT NOT NULL,
+    slot TEXT NOT NULL,
+    location TEXT,
+    level INTEGER NOT NULL DEFAULT 0,
+    stats TEXT AS List<Pair<String, Float>> NOT NULL
+);
+
+insert:
+INSERT OR REPLACE INTO Relic VALUES ?;
+
+selectAll:
+SELECT * FROM Relic;
+
+

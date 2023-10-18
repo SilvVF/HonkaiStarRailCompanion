@@ -89,9 +89,7 @@ fun SearchTopAppBar(
                         .focusRequester(focusRequester),
                     value = searchText,
                     placeholder = { Text("Search characters...") },
-                    onValueChange = {
-                        onSearchText(it)
-                    },
+                    onValueChange = onSearchText,
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = Color.Transparent,
                         unfocusedContainerColor = Color.Transparent,

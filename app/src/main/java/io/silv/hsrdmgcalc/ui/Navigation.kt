@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -16,7 +17,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import io.silv.hsrdmgcalc.ExpandedBottomBarContent
 import io.silv.hsrdmgcalc.ui.composables.LaunchedOnSelectedDestinationClick
-import io.silv.hsrdmgcalc.ui.composables.UpdateAppBar
+import io.silv.hsrdmgcalc.ui.composables.UpdateBottomAppBar
 import io.silv.hsrdmgcalc.ui.composables.typeFilterRow
 import io.silv.hsrdmgcalc.ui.screens.character.CharacterScreen
 
@@ -47,7 +48,11 @@ fun Navigation(
                    appState.bottomBarState.toggleProgress()
                }
 
-               UpdateAppBar(
+               SideEffect {
+                   appState.clearTopAppBar()
+               }
+
+               UpdateBottomAppBar(
                    appState,
                    peekContent = {
                        Column {
@@ -75,6 +80,10 @@ fun Navigation(
         composable(
             route = HsrDestination.Relic.route
         ) {
+            SideEffect {
+                appState.clearTopAppBar()
+            }
+
             Box(modifier = Modifier.fillMaxSize()) {
                 Text("Relic", Modifier.align(Alignment.Center))
             }
