@@ -9,9 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -47,6 +45,8 @@ import io.silv.hsrdmgcalc.ui.composables.CardType
 import io.silv.hsrdmgcalc.ui.composables.DisplayOptionsBottomSheet
 import io.silv.hsrdmgcalc.ui.composables.LaunchedOnSelectedDestinationClick
 import io.silv.hsrdmgcalc.ui.composables.Path
+import io.silv.hsrdmgcalc.ui.composables.ScrollbarLazyColumn
+import io.silv.hsrdmgcalc.ui.composables.ScrollbarLazyGrid
 import io.silv.hsrdmgcalc.ui.composables.SearchTopAppBar
 import io.silv.hsrdmgcalc.ui.composables.Type
 import io.silv.hsrdmgcalc.ui.composables.UpdateBottomAppBar
@@ -215,7 +215,7 @@ private fun CharacterScreenContent(
         }
 
         if (displayPrefs.cardType == CardType.List) {
-            LazyColumn {
+            ScrollbarLazyColumn {
                 items(
                     items = filteredCharacter,
                     key = { item: CharacterWithItems -> item.character.name }
@@ -244,8 +244,9 @@ private fun CharacterScreenContent(
                 }
             }
         } else {
-            LazyVerticalGrid(
+            ScrollbarLazyGrid(
                 columns = GridCells.Fixed(displayPrefs.gridCells),
+                cellCount = displayPrefs.gridCells
             ) {
                 items(
                     items = filteredCharacter,
