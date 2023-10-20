@@ -1,7 +1,9 @@
-package io.silv.hsrdmgcalc.ui.composables
+package io.silv.hsrdmgcalc.ui.screens.character.composables
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,6 +15,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -28,9 +31,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import io.silv.hsrdmgcalc.R
 import io.silv.hsrdmgcalc.data.HonkaiConstants
+import io.silv.hsrdmgcalc.ui.composables.CharacterIcon
+import io.silv.hsrdmgcalc.ui.composables.Path
+import io.silv.hsrdmgcalc.ui.composables.PathIcon
+import io.silv.hsrdmgcalc.ui.composables.Type
+import io.silv.hsrdmgcalc.ui.composables.TypeIcon
 import io.silv.hsrdmgcalc.ui.theme.HsrDmgCalcTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,10 +54,18 @@ fun SemiCompactCharacterCard(
 ) {
     Card(
         modifier = modifier,
-        onClick = onClick,
         shape = RoundedCornerShape(10)
     ) {
-        Box(Modifier.fillMaxSize()) {
+        Box(
+            Modifier
+                .fillMaxSize()
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = rememberRipple(true, Dp.Unspecified, type.color)
+                ) {
+                    onClick()
+                }
+        ) {
             BackGroundGradient(
                 fiveStar = fiveStar,
                 modifier = Modifier.matchParentSize()
@@ -88,7 +105,9 @@ fun SemiCompactCharacterCard(
                         else R.drawable.honkai_4_star
                     ),
                     contentDescription = null,
-                    modifier = Modifier.fillMaxWidth(0.8f).padding(bottom = 6.dp),
+                    modifier = Modifier
+                        .fillMaxWidth(0.8f)
+                        .padding(bottom = 6.dp),
                     contentScale = ContentScale.FillWidth
                 )
                 Box(modifier = Modifier
@@ -111,6 +130,7 @@ fun SemiCompactCharacterCard(
     }
 }
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CompactCharacterCard(
@@ -122,10 +142,18 @@ fun CompactCharacterCard(
 ) {
     Card(
         modifier = modifier,
-        onClick = onClick,
-        shape = RoundedCornerShape(20)
+        shape = RoundedCornerShape(20),
     ) {
-        Box(Modifier.fillMaxSize()) {
+        Box(
+            Modifier
+                .fillMaxSize()
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = rememberRipple(true, Dp.Unspecified, type.color)
+                ) {
+                    onClick()
+                }
+        ) {
             BackGroundGradient(
                 fiveStar = fiveStar,
                 modifier = Modifier.matchParentSize()
@@ -178,10 +206,18 @@ fun ExtraCompactCharacterCard(
 ) {
     Card(
         modifier = modifier,
-        onClick = onClick,
         shape = RoundedCornerShape(20)
     ) {
-        Box(Modifier.fillMaxSize()) {
+        Box(
+            Modifier
+                .fillMaxSize()
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = rememberRipple(true, Dp.Unspecified, type.color)
+                ) {
+                    onClick()
+                }
+        ) {
             BackGroundGradient(
                 fiveStar = fiveStar,
                 modifier = Modifier.matchParentSize()

@@ -10,14 +10,19 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastFirstOrNull
+import kotlinx.collections.immutable.persistentListOf
 
 val IMAGINARY = Color(0xffF8EB70)
 val PHYSICAL = Color(0xffC5C5C5)
@@ -51,20 +56,28 @@ enum class Type(val color: Color) {
 @OptIn(ExperimentalFoundationApi::class)
 fun LazyListScope.typeFilterRow(
     modifier: Modifier = Modifier,
+    startSelected: Type? = null,
     onElementSelected: (Type?) -> Unit,
 ) {
     item { Spacer(Modifier.width(8.dp)) }
     item {
-        val selectedList = remember {
-            mutableStateListOf(
-                TagSelection(Type.Physical),
-                TagSelection(Type.Wind),
-                TagSelection(Type.Quantum),
-                TagSelection(Type.Fire),
-                TagSelection(Type.Ice),
-                TagSelection(Type.Imaginary),
-                TagSelection(Type.Lightning)
-            )
+
+        var selectedType by rememberSaveable {
+            mutableStateOf<Type?>(startSelected)
+        }
+
+        val selectedList by remember(selectedType) {
+            derivedStateOf {
+                persistentListOf(
+                    TagSelection(Type.Physical, Type.Physical == selectedType),
+                    TagSelection(Type.Wind, Type.Wind == selectedType),
+                    TagSelection(Type.Quantum, Type.Quantum == selectedType),
+                    TagSelection(Type.Fire, Type.Fire == selectedType),
+                    TagSelection(Type.Ice, Type.Ice == selectedType),
+                    TagSelection(Type.Imaginary, Type.Imaginary == selectedType),
+                    TagSelection(Type.Lightning, Type.Lightning == selectedType)
+                )
+            }
         }
         MultiFilterTag(
             modifier = modifier.heightIn(38.dp),
@@ -88,16 +101,16 @@ fun LazyListScope.typeFilterRow(
                 }
             },
             selectedColor = selectedList.fastFirstOrNull { it.selected }?.item?.color
-                ?: MaterialTheme.colorScheme.secondaryContainer,
-            onTagSelected = {
-                onElementSelected(
-                    if (it.selected) null else it.item
-                )
-                val idx = selectedList.indexOf(it)
-                val item = selectedList[idx]
-                selectedList[idx] = item.copy(selected = !item.selected)
-            }
-        )
+                ?: MaterialTheme.colorScheme.secondaryContainer
+        ) {
+            onElementSelected(
+                if (it.selected) null else it.item
+            )
+            selectedType = if (it.item == selectedType)
+                null
+            else
+                it.item
+        }
     }
     item { Spacer(Modifier.width(8.dp)) }
 }

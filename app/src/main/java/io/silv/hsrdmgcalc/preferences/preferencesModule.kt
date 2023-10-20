@@ -17,6 +17,10 @@ val preferencesModule = module {
         bind<DisplayPreferences>()
     }
 
+    singleOf(::DataPreferencesImpl) {
+        bind<DataPreferences>()
+    }
+
     single {
         androidContext().dataStore
     }

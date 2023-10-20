@@ -5,6 +5,8 @@ import io.silv.hsrdmgcalc.ui.composables.Type
 
 object HonkaiConstants {
 
+    const val CharacterListVersion = 1
+
     val characters = listOf(
         "Bailu",
         "Blade",

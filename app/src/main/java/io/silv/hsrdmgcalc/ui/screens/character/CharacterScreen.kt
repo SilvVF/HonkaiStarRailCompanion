@@ -1,20 +1,22 @@
 package io.silv.hsrdmgcalc.ui.screens.character
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -23,48 +25,54 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import io.silv.hsrdmgcalc.ExpandedBottomBarContent
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.silv.hsrdmgcalc.LocalNavBarHeight
 import io.silv.hsrdmgcalc.LocalPaddingValues
 import io.silv.hsrdmgcalc.data.CharacterWithItems
+import io.silv.hsrdmgcalc.preferences.Grouping
 import io.silv.hsrdmgcalc.ui.AppState
 import io.silv.hsrdmgcalc.ui.HsrDestination
 import io.silv.hsrdmgcalc.ui.composables.CardType
-import io.silv.hsrdmgcalc.ui.composables.CompactCharacterCard
 import io.silv.hsrdmgcalc.ui.composables.DisplayOptionsBottomSheet
-import io.silv.hsrdmgcalc.ui.composables.ExtraCompactCharacterCard
 import io.silv.hsrdmgcalc.ui.composables.LaunchedOnSelectedDestinationClick
 import io.silv.hsrdmgcalc.ui.composables.Path
 import io.silv.hsrdmgcalc.ui.composables.SearchTopAppBar
-import io.silv.hsrdmgcalc.ui.composables.SemiCompactCharacterCard
 import io.silv.hsrdmgcalc.ui.composables.Type
 import io.silv.hsrdmgcalc.ui.composables.UpdateBottomAppBar
 import io.silv.hsrdmgcalc.ui.composables.UpdateTopBar
-import io.silv.hsrdmgcalc.ui.composables.pathFilterRow
-import io.silv.hsrdmgcalc.ui.composables.typeFilterRow
 import io.silv.hsrdmgcalc.ui.conditional
+import io.silv.hsrdmgcalc.ui.screens.character.composables.CharacterExpandedBottomBarContent
+import io.silv.hsrdmgcalc.ui.screens.character.composables.CharacterListItem
+import io.silv.hsrdmgcalc.ui.screens.character.composables.CharacterPeekContent
+import io.silv.hsrdmgcalc.ui.screens.character.composables.CompactCharacterCard
+import io.silv.hsrdmgcalc.ui.screens.character.composables.ExtraCompactCharacterCard
+import io.silv.hsrdmgcalc.ui.screens.character.composables.GroupCharactersBottomSheet
+import io.silv.hsrdmgcalc.ui.screens.character.composables.SemiCompactCharacterCard
+import kotlinx.collections.immutable.ImmutableList
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun CharacterScreen(
     viewModel: CharacterViewModel = koinViewModel(),
     appState: AppState,
+    onCharacterClick: (String) -> Unit
 ) {
-    val charactersWithItems by viewModel.charactersWithItems.collectAsState()
+    val charactersWithItems by viewModel.charactersWithItems.collectAsStateWithLifecycle()
+    val selectedPathFilter by viewModel.selectedPathFilter.collectAsStateWithLifecycle()
+    val selectedTypeFilter by viewModel.selectedTypeFilter.collectAsStateWithLifecycle()
 
     CharacterScreenContent(
-        paddingValues = LocalPaddingValues.current,
-        navBarHeight = LocalNavBarHeight.current,
         appState = appState,
         onGridSizeSelected = viewModel::updateGridCellCount,
         onCardTypeSelected = viewModel::updateCardType,
@@ -72,16 +80,20 @@ fun CharacterScreen(
         charactersWithItems = charactersWithItems,
         onPathSelected = viewModel::updatePathFilter,
         onTypeSelected = viewModel::updateTypeFilter,
-        searchText = viewModel.searchText
+        onCharacterClick = onCharacterClick,
+        updateOwnedOnly = viewModel::updateOwnedOnly,
+        updateFiveStarOnly = viewModel::updateFiveStarOnly,
+        updateGroupByLevel = viewModel::updateGroupByLevel,
+        pathFilter = selectedPathFilter,
+        typeFilter = selectedTypeFilter
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun CharacterScreenContent(
-    paddingValues: PaddingValues,
-    navBarHeight: Dp,
+private fun CharacterScreenContent(
     appState: AppState,
+    onCharacterClick: (name: String) -> Unit,
 
     onGridSizeSelected: (size: Int) -> Unit,
     onCardTypeSelected: (cardType: CardType) -> Unit,
@@ -89,13 +101,24 @@ fun CharacterScreenContent(
     onTypeSelected: (Type?) -> Unit,
     onPathSelected: (Path?) -> Unit,
 
-    charactersWithItems: List<CharacterWithItems>,
-    searchText: MutableState<String>,
+    updateOwnedOnly: (Boolean) -> Unit,
+    updateFiveStarOnly: (Boolean) -> Unit,
+    updateGroupByLevel: (Grouping) -> Unit,
+
+    charactersWithItems: ImmutableList<CharacterWithItems>,
+    pathFilter: Path?,
+    typeFilter: Type?
 ) {
 
     var displayOptionsBottomSheetVisible by rememberSaveable {
         mutableStateOf(false)
     }
+
+    var groupCharactersBottomSheetVisible by rememberSaveable {
+        mutableStateOf(false)
+    }
+    val appPrefs = appState.displayPrefs
+    val displayPrefs = appPrefs.characterPrefs
 
     LaunchedOnSelectedDestinationClick(appState = appState, destination = HsrDestination.Character) {
         appState.bottomBarState.toggleProgress()
@@ -107,57 +130,48 @@ fun CharacterScreenContent(
         mutableStateOf(false)
     }
 
-    var text by searchText
+    var searchText by rememberSaveable {
+        mutableStateOf("")
+    }
 
     UpdateTopBar(appState = appState, scrollBehavior = scrollBehavior) {
         SearchTopAppBar(
-            onSearchText = {
-                text = it
-            },
+            onSearchText = { searchText = it },
             showTextField = searching,
             actions = {
                 IconButton(
                     onClick = {
-                        appState.bottomBarState.progress = SheetValue.Expanded
+                        appState.bottomBarState.progress =
+                            if (appState.bottomBarState.progress == SheetValue.Expanded)
+                                SheetValue.Hidden
+                            else
+                                SheetValue.Expanded
                     }
                 ) {
                     Icon(imageVector = Icons.Filled.FilterList, null)
                 }
             },
             scrollBehavior = scrollBehavior,
-            searchText = text,
+            searchText = searchText,
             onSearchChanged = { searchState -> searching = searchState }
         )
     }
 
     UpdateBottomAppBar(
-        appState,
+        appState = appState,
         peekContent = {
-            Column {
-                val modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(38.dp)
-                    .padding(bottom = 6.dp)
-                LazyRow(
-                    modifier = modifier
-                ) {
-                    typeFilterRow { type ->
-                        onTypeSelected(type)
-                    }
-                }
-                LazyRow(
-                    modifier = modifier
-                ) {
-                    pathFilterRow { path ->
-                        onPathSelected(path)
-                    }
-                }
-            }
+           CharacterPeekContent(
+               selectedPath = pathFilter,
+               selectedType = typeFilter,
+               onTypeSelected =  onTypeSelected,
+               onPathSelected = onPathSelected
+           )
         },
         content = {
-            ExpandedBottomBarContent {
-                displayOptionsBottomSheetVisible = true
-            }
+            CharacterExpandedBottomBarContent(
+                showDisplayOptions = { displayOptionsBottomSheetVisible = true },
+                showGroupingOptions = { groupCharactersBottomSheetVisible = true}
+            )
         },
     )
 
@@ -165,12 +179,21 @@ fun CharacterScreenContent(
         visible = displayOptionsBottomSheetVisible,
         onDismissRequest = { displayOptionsBottomSheetVisible = false },
         onGridSizeSelected = onGridSizeSelected,
-        gridCells = appState.displayPrefs.gridCells,
         onCardTypeSelected = onCardTypeSelected,
-        cardType = appState.displayPrefs.cardType,
-        animatePlacement = appState.displayPrefs.animateCardPlacement,
-        onAnimatePlacementChanged = onAnimateCardPlacementChanged
+        onAnimatePlacementChanged = onAnimateCardPlacementChanged,
+        prefs = displayPrefs
     )
+
+    GroupCharactersBottomSheet(
+        visible = groupCharactersBottomSheetVisible,
+        prefs = appPrefs.characterGrouping,
+        updateOwnedOnly = updateOwnedOnly,
+        updateFiveStarOnly = updateFiveStarOnly,
+        updateSortByLevel = updateGroupByLevel,
+        onDismissRequest = { groupCharactersBottomSheetVisible = false }
+    )
+
+    val paddingValues = LocalPaddingValues.current
 
     Surface(
         Modifier
@@ -178,54 +201,99 @@ fun CharacterScreenContent(
                 top = paddingValues.calculateTopPadding(),
                 start = paddingValues.calculateStartPadding(LocalLayoutDirection.current),
                 end = paddingValues.calculateEndPadding(LocalLayoutDirection.current),
-                bottom = navBarHeight
+                bottom = LocalNavBarHeight.current
             )
             .fillMaxSize()
     ) {
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(appState.displayPrefs.gridCells),
-        ) {
-            items(
-                items = charactersWithItems,
-                key = { item: CharacterWithItems -> item.character.name }
-            ) {item ->
-                when (appState.displayPrefs.cardType) {
-                    CardType.Full,
-                    CardType.List,
-                    CardType.SemiCompact -> SemiCompactCharacterCard(
+
+        val filteredCharacter by remember(searchText, charactersWithItems) {
+            derivedStateOf {
+                charactersWithItems.filter {
+                    searchText.isBlank() || searchText.lowercase() in it.character.name.lowercase()
+                }
+            }
+        }
+
+        if (displayPrefs.cardType == CardType.List) {
+            LazyColumn {
+                items(
+                    items = filteredCharacter,
+                    key = { item: CharacterWithItems -> item.character.name }
+                ) {item ->
+                    val height = (LocalConfiguration.current.screenHeightDp * 0.1f).dp
+                    CharacterListItem(
                         modifier = Modifier
-                            .padding(6.dp)
                             .fillMaxWidth()
-                            .conditional(appState.displayPrefs.animateCardPlacement) {
+                            .heightIn(60.dp, height)
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = rememberRipple(
+                                    true,
+                                    Dp.Unspecified,
+                                    item.character.type.color
+                                )
+                            ) {
+                                onCharacterClick(item.character.name)
+                            }
+                            .padding(4.dp)
+                            .conditional(displayPrefs.animateCardPlacement) {
                                 animateItemPlacement()
                             },
-                        character = item.character.name,
-                        type = item.character.type,
-                        path = item.character.path,
-                        fiveStar = item.character.is5star
-                    ) {}
-                    CardType.Compact -> CompactCharacterCard(
-                        modifier = Modifier
-                            .padding(6.dp)
-                            .fillMaxWidth()
-                            .conditional(appState.displayPrefs.animateCardPlacement) {
-                                animateItemPlacement()
-                            },
-                        character = item.character.name,
-                        type = item.character.type,
-                        fiveStar = item.character.is5star
-                    ){}
-                    CardType.ExtraCompact -> ExtraCompactCharacterCard(
-                        modifier = Modifier
-                            .padding(6.dp)
-                            .fillMaxWidth()
-                            .conditional(appState.displayPrefs.animateCardPlacement) {
-                                animateItemPlacement()
-                            },
-                        character = item.character.name,
-                        type = item.character.type,
-                        fiveStar = item.character.is5star
-                    ){}
+                        character = item.character
+                    )
+                }
+            }
+        } else {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(displayPrefs.gridCells),
+            ) {
+                items(
+                    items = filteredCharacter,
+                    key = { item: CharacterWithItems -> item.character.name }
+                ) { item ->
+                    when (displayPrefs.cardType) {
+                        CardType.Full,
+                        CardType.SemiCompact -> SemiCompactCharacterCard(
+                            modifier = Modifier
+                                .padding(6.dp)
+                                .fillMaxWidth()
+                                .conditional(displayPrefs.animateCardPlacement) {
+                                    animateItemPlacement()
+                                },
+                            character = item.character.name,
+                            type = item.character.type,
+                            path = item.character.path,
+                            fiveStar = item.character.is5star
+                        ) {
+                            onCharacterClick(item.character.name)
+                        }
+                        CardType.Compact -> CompactCharacterCard(
+                            modifier = Modifier
+                                .padding(6.dp)
+                                .fillMaxWidth()
+                                .conditional(displayPrefs.animateCardPlacement) {
+                                    animateItemPlacement()
+                                },
+                            character = item.character.name,
+                            type = item.character.type,
+                            fiveStar = item.character.is5star
+                        ) {
+                            onCharacterClick(item.character.name)
+                        }
+                        else -> ExtraCompactCharacterCard(
+                            modifier = Modifier
+                                .padding(6.dp)
+                                .fillMaxWidth()
+                                .conditional(displayPrefs.animateCardPlacement) {
+                                    animateItemPlacement()
+                                },
+                            character = item.character.name,
+                            type = item.character.type,
+                            fiveStar = item.character.is5star
+                        ) {
+                            onCharacterClick(item.character.name)
+                        }
+                    }
                 }
             }
         }

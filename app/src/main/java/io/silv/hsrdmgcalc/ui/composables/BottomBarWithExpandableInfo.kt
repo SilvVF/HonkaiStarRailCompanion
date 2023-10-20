@@ -60,7 +60,7 @@ fun BottomBarWithDraggableContent(
                                 }
                             }
                         } else {
-                            appState.navigate(dest)
+                            appState.navigateToHsrDestination(dest)
                         }
                     },
                     icon = { dest.icon(selectedDest == dest) }

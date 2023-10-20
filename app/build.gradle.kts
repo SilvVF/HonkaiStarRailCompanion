@@ -84,13 +84,15 @@ dependencies {
     implementation("io.insert-koin:koin-androidx-compose:3.5.0")
     implementation("io.insert-koin:koin-androidx-workmanager:3.5.0")
 
-    implementation("androidx.compose.material:material-icons-extended:1.5.3")
+    implementation("androidx.compose.material:material-icons-extended:1.5.4")
 
     val work_version = "2.8.1"
 
     val nav_version = "2.7.4"
     implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation("androidx.navigation:navigation-compose:$nav_version")
+    implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.6")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.2")
 
     // Kotlin + coroutines
     implementation("androidx.work:work-runtime-ktx:$work_version")

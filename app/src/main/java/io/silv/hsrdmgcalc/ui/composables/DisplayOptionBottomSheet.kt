@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEachIndexed
+import io.silv.hsrdmgcalc.preferences.DisplayPrefs
 import kotlin.math.roundToInt
 
 enum class CardType(val string: String) {
@@ -40,11 +41,9 @@ enum class CardType(val string: String) {
 @Composable
 fun DisplayOptionsBottomSheet(
     visible: Boolean,
+    prefs: DisplayPrefs.Prefs,
     onDismissRequest: () -> Unit,
     onGridSizeSelected: (Int) -> Unit,
-    gridCells: Int,
-    cardType: CardType,
-    animatePlacement: Boolean,
     onAnimatePlacementChanged: (Boolean) -> Unit,
     onCardTypeSelected: (CardType) -> Unit,
 ) {
@@ -65,16 +64,16 @@ fun DisplayOptionsBottomSheet(
             onDismissRequest = onDismissRequest,
         ) {
             SelectCardType(
-                cardType = cardType,
+                cardType = prefs.cardType,
                 onCardTypeSelected = onCardTypeSelected
             )
             GridSizeSelector(
                 Modifier.fillMaxWidth(),
                 onSizeSelected = onGridSizeSelected,
-                size = gridCells
+                size = prefs.gridCells
             )
             AnimatePlacementCheckBox(
-                animatePlacement = animatePlacement,
+                animatePlacement = prefs.animateCardPlacement,
                 onCheckChanged = onAnimatePlacementChanged,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -105,7 +104,6 @@ fun AnimatePlacementCheckBox(
             style = MaterialTheme.typography.titleSmall
         )
     }
-
 }
 
 @Composable

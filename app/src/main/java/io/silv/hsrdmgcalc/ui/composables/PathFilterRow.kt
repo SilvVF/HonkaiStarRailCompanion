@@ -11,14 +11,19 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastFirstOrNull
+import kotlinx.collections.immutable.persistentListOf
 
 //Destruction
 //The Hunt
@@ -40,20 +45,28 @@ enum class Path(val color: Color) {
 @OptIn(ExperimentalFoundationApi::class)
 fun LazyListScope.pathFilterRow(
     modifier: Modifier = Modifier,
+    startSelected: Path? = null,
     onPathSelected: (Path?) -> Unit,
 ) {
     item { Spacer(Modifier.width(8.dp)) }
     item {
-        val selectedList = remember {
-            mutableStateListOf(
-                TagSelection(Path.Abundance),
-                TagSelection(Path.Erudition),
-                TagSelection(Path.Nihility),
-                TagSelection(Path.Harmony),
-                TagSelection(Path.TheHunt),
-                TagSelection(Path.Preservation),
-                TagSelection(Path.Destruction)
-            )
+
+        var selectedPath by rememberSaveable {
+            mutableStateOf<Path?>(startSelected)
+        }
+
+        val selectedList by remember(selectedPath) {
+            derivedStateOf {
+                persistentListOf(
+                    TagSelection(Path.Abundance, Path.Abundance == selectedPath),
+                    TagSelection(Path.Erudition, Path.Erudition == selectedPath),
+                    TagSelection(Path.Nihility, Path.Nihility == selectedPath),
+                    TagSelection(Path.Harmony, Path.Harmony == selectedPath),
+                    TagSelection(Path.TheHunt, Path.TheHunt == selectedPath),
+                    TagSelection(Path.Preservation, Path.Preservation == selectedPath),
+                    TagSelection(Path.Destruction, Path.Destruction == selectedPath)
+                )
+            }
         }
         MultiFilterTag(
             modifier = modifier.heightIn(38.dp),
@@ -79,9 +92,10 @@ fun LazyListScope.pathFilterRow(
                 onPathSelected(
                     if (it.selected) null else it.item
                 )
-                val idx = selectedList.indexOf(it)
-                val item = selectedList[idx]
-                selectedList[idx] = item.copy(selected = !item.selected)
+                selectedPath = if (it.item == selectedPath)
+                    null
+                else
+                    it.item
             }
         )
     }

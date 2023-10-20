@@ -1,11 +1,11 @@
 package io.silv.hsrdmgcalc.ui
 
+import android.util.Log
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -13,11 +13,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.util.fastFirstOrNull
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import androidx.navigation.navOptions
 import io.silv.hsrdmgcalc.preferences.DisplayPreferences
 import io.silv.hsrdmgcalc.preferences.DisplayPrefs
 import io.silv.hsrdmgcalc.ui.composables.ExpandableState
 import io.silv.hsrdmgcalc.ui.composables.rememberExpandableState
+import io.silv.hsrdmgcalc.ui.screens.character.navigateToCharacterGraph
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -64,7 +67,9 @@ class AppState @OptIn(ExperimentalMaterial3Api::class) constructor(
     val displayPrefs: DisplayPrefs
         @Composable get() {
             val preferences = rememberKoinInject<DisplayPreferences>()
-            val prefs by preferences.observePrefs().collectAsState(initial = DisplayPrefs())
+            val prefs by preferences
+                .observePrefs()
+                .collectAsStateWithLifecycle(initialValue = DisplayPrefs())
 
             return prefs
         }
@@ -126,7 +131,27 @@ class AppState @OptIn(ExperimentalMaterial3Api::class) constructor(
         }
     }
 
-    fun navigate(destination: HsrDestination) {
-        navController.navigate(destination.route)
+    fun navigateToHsrDestination(destination: HsrDestination) {
+        Log.d("Navigation", "trying to navigate to $destination")
+        val topLevelNavOptions = navOptions {
+            // Pop up to the start destination of the graph to
+            // avoid building up a large stack of destinations
+            // on the back stack as users select items
+            navController.currentDestination?.route?.let {
+                popUpTo(it) {
+                    saveState = true
+                }
+            }
+            // Avoid multiple copies of the same destination when
+            // reselecting the same item
+            launchSingleTop = true
+            // Restore state when reselecting a previously selected item
+            restoreState = true
+        }
+        when (destination) {
+            HsrDestination.Character -> navController.navigateToCharacterGraph(topLevelNavOptions)
+            HsrDestination.Relic -> navController.navigate(HsrDestination.Relic.route)
+            HsrDestination.LightCone -> navController.navigate(HsrDestination.LightCone.route)
+        }
     }
 }

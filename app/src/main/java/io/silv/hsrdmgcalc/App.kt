@@ -3,6 +3,7 @@ package io.silv.hsrdmgcalc
 import android.app.Application
 import io.silv.hsrdmgcalc.data.PrepopulateWorker
 import io.silv.hsrdmgcalc.data.dataModule
+import io.silv.hsrdmgcalc.preferences.preferencesModule
 import io.silv.hsrdmgcalc.ui.screens.viewModelModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -15,10 +16,10 @@ class App: Application() {
         super.onCreate()
 
         startKoin {
-            androidLogger()
             androidContext(this@App)
+            androidLogger()
             workManagerFactory()
-            modules(appModule, viewModelModule, dataModule)
+            modules(appModule, viewModelModule, dataModule, preferencesModule)
         }
 
         PrepopulateWorker.prepopulate(this)

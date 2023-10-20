@@ -1,19 +1,21 @@
 package io.silv.hsrdmgcalc.ui.screens.character
 
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.silv.hsrdmgcalc.ApplicationScope
 import io.silv.hsrdmgcalc.data.GetCharacterWithItems
 import io.silv.hsrdmgcalc.preferences.DisplayPreferences
-import io.silv.hsrdmgcalc.preferences.DisplayPrefs
+import io.silv.hsrdmgcalc.preferences.Grouping
 import io.silv.hsrdmgcalc.ui.composables.CardType
 import io.silv.hsrdmgcalc.ui.composables.Path
 import io.silv.hsrdmgcalc.ui.composables.Type
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -24,38 +26,97 @@ class CharacterViewModel(
 ): ViewModel() {
 
     private val typeFilter = MutableStateFlow<Type?>(null)
+    val selectedTypeFilter = typeFilter.asStateFlow()
     private val pathFilter = MutableStateFlow<Path?>(null)
-
-    var searchText = mutableStateOf("")
+    val selectedPathFilter = pathFilter.asStateFlow()
 
     val charactersWithItems = combine(
         getCharacterWithItems(),
         typeFilter,
         pathFilter,
-        snapshotFlow { searchText.value }
-    ) { items, type, path, search ->
-        items
+        displayPreferences.observePrefs().map { prefs -> prefs.characterGrouping },
+    ) { items, type, path, grouping ->
+
+        var filteredItems = items
             .filter { item -> item.character.type == type || type == null }
             .filter { item -> item.character.path == path || path == null }
-            .filter { item -> search.lowercase() in item.character.name.lowercase() }
+
+        if (grouping.fiveStarOnly)
+            filteredItems = filteredItems.filter { item -> item.character.is5star }
+        if (grouping.ownedOnly)
+            filteredItems = filteredItems.filter { item -> item.character.owned }
+
+        filteredItems = when(grouping.level) {
+            Grouping.ASC -> filteredItems.sortedBy { item -> item.character.level }
+            Grouping.DSC -> filteredItems.sortedByDescending { item -> item.character.level }
+            Grouping.NONE -> filteredItems
+        }
+
+        filteredItems.toImmutableList()
     }
         .stateIn(
             viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
-            emptyList()
+            persistentListOf()
         )
 
-    val displayPrefs = displayPreferences.observePrefs()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = DisplayPrefs()
-        )
 
     fun updateGridCellCount(count: Int) {
         applicationScope.launch {
             displayPreferences.updatePrefs { prev ->
-                prev.copy(gridCells = count)
+                prev.copy(
+                    characterPrefs = prev.characterPrefs.copy(
+                        gridCells = count
+                    )
+                )
+            }
+        }
+    }
+
+    fun updateCardType(cardType: CardType) {
+        applicationScope.launch {
+            displayPreferences.updatePrefs { prev ->
+                prev.copy(
+                    characterPrefs = prev.characterPrefs.copy(
+                        cardType = cardType
+                    )
+                )
+            }
+        }
+    }
+
+    fun updateGroupByLevel(grouping: Grouping) {
+        applicationScope.launch {
+            displayPreferences.updatePrefs {prev ->
+                prev.copy(
+                    characterGrouping = prev.characterGrouping.copy(
+                        level = grouping
+                    )
+                )
+            }
+        }
+    }
+
+    fun updateOwnedOnly(ownedOnly: Boolean) {
+        applicationScope.launch {
+            displayPreferences.updatePrefs {prev ->
+                prev.copy(
+                    characterGrouping = prev.characterGrouping.copy(
+                        ownedOnly = ownedOnly
+                    )
+                )
+            }
+        }
+    }
+
+    fun updateFiveStarOnly(fiveStarOnly: Boolean) {
+        applicationScope.launch {
+            displayPreferences.updatePrefs {prev ->
+                prev.copy(
+                    characterGrouping = prev.characterGrouping.copy(
+                        fiveStarOnly = fiveStarOnly
+                    )
+                )
             }
         }
     }
@@ -63,7 +124,11 @@ class CharacterViewModel(
     fun updateAnimateCardPlacement(animate: Boolean) {
         applicationScope.launch {
             displayPreferences.updatePrefs { prev ->
-                prev.copy(animateCardPlacement = animate)
+                prev.copy(
+                    characterPrefs = prev.characterPrefs.copy(
+                        animateCardPlacement = animate
+                    )
+                )
             }
         }
     }
@@ -80,11 +145,4 @@ class CharacterViewModel(
         }
     }
 
-    fun updateCardType(cardType: CardType) {
-        applicationScope.launch {
-            displayPreferences.updatePrefs { prev ->
-                prev.copy(cardType = cardType)
-            }
-        }
-    }
 }

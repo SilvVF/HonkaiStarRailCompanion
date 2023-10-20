@@ -1,5 +1,7 @@
 package io.silv.hsrdmgcalc.data
 
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.util.fastFirstOrNull
 import io.silv.honkai.Character
 import io.silv.honkai.LightCone
@@ -8,6 +10,8 @@ import io.silv.hsrdmgcalc.ui.UiCharacter
 import io.silv.hsrdmgcalc.ui.UiLightCone
 import io.silv.hsrdmgcalc.ui.UiRelic
 import io.silv.hsrdmgcalc.ui.composables.Path
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.combine
 
 class GetCharacterWithItems(
@@ -29,6 +33,7 @@ class GetCharacterWithItems(
                 relics = relics
                     .filter { relic -> relic.location == character.name }
                     .map { relic -> relic.toUi() }
+                    .toImmutableList()
             )
         }
     }
@@ -74,8 +79,10 @@ fun Relic.toUi(): UiRelic {
     )
 }
 
+@Stable
+@Immutable
 data class CharacterWithItems(
     val character: UiCharacter,
     val lightCone: UiLightCone?,
-    val relics: List<UiRelic>
+    val relics: ImmutableList<UiRelic>
 )
