@@ -53,7 +53,7 @@ fun BottomBarWithDraggableContent(
                 NavigationBarItem(
                     selected = selectedDest == dest,
                     onClick = {
-                        if (selectedDest == dest) {
+                        if (appState.navController.currentDestination == dest) {
                             for ((_, action) in appState.destinationTappedActions[dest] ?: emptyList()) {
                                 scope.launch {
                                     action.invoke()

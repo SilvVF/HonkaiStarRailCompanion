@@ -13,6 +13,7 @@ data class UiCharacter(
     val name: String,
     val owned: Boolean,
     val level: Int,
+    val ascension: Int,
     val traceSkill: Int,
     val traceBasicAtk: Int,
     val traceUltimate: Int,

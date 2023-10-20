@@ -23,6 +23,7 @@ import androidx.core.view.WindowCompat
 import androidx.navigation.compose.rememberNavController
 import io.silv.hsrdmgcalc.ui.Navigation
 import io.silv.hsrdmgcalc.ui.composables.BottomBarWithDraggableContent
+import io.silv.hsrdmgcalc.ui.conditional
 import io.silv.hsrdmgcalc.ui.rememberAppState
 import io.silv.hsrdmgcalc.ui.theme.HsrDmgCalcTheme
 
@@ -51,7 +52,11 @@ class MainActivity : ComponentActivity() {
                         .exclude(WindowInsets.statusBars),
                     modifier = Modifier
                         .fillMaxSize()
-                        .nestedScroll(appState.topAppBar.first.nestedScrollConnection),
+                        .conditional(appState.topAppBar.first != null) {
+                            appState.topAppBar.first?.nestedScrollConnection?.let {
+                                nestedScroll(it)
+                            } ?: this
+                        },
                     topBar = {
                         appState.topAppBar.second()
                     },

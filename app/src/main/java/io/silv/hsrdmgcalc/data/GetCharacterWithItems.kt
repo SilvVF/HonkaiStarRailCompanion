@@ -53,7 +53,8 @@ fun Character.toUi(): UiCharacter {
         applyStatBonuses = apply_stat_bonuses,
         type = HonkaiConstants.characterType(name),
         path = HonkaiConstants.characterPath(name),
-        is5star = HonkaiConstants.is5Star(name)
+        is5star = HonkaiConstants.is5Star(name),
+        ascension = ascension.toInt()
     )
 }
 

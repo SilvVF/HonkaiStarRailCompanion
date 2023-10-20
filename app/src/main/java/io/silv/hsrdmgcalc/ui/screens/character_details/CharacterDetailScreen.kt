@@ -1,15 +1,19 @@
 package io.silv.hsrdmgcalc.ui.screens.character_details
 
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.silv.hsrdmgcalc.ui.AppState
 import org.koin.androidx.compose.koinViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CharacterDetails(
     appState: AppState,
@@ -19,7 +23,31 @@ fun CharacterDetails(
         appState.clearTopAppBar()
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Text(text = viewModel.characterDetailsArgs.name, Modifier.align(Alignment.Center))
+    when (val state = viewModel.characterDetailsState.collectAsStateWithLifecycle().value) {
+        CharacterDetailsState.Loading -> Unit
+        is CharacterDetailsState.Success -> CharacterDetailSuccessScreen(characterDetailsState = state)
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CharacterDetailSuccessScreen(
+    characterDetailsState: CharacterDetailsState.Success
+) {
+    val character = characterDetailsState.character
+
+    CollapsingToolbarLayout(
+        character = character,
+    ) {
+        Column(
+            Modifier
+                .fillMaxSize()
+                .padding(vertical = 12.dp)
+        ) {
+            repeat(40) {
+                Text(text = "sdfaf")
+            }
+        }
+    }
+}
+

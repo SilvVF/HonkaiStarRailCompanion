@@ -75,6 +75,8 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
+    implementation("me.onebone:toolbar-compose:2.3.5")
+
     implementation("app.cash.sqldelight:android-driver:2.0.0")
     implementation("app.cash.sqldelight:coroutines-extensions:2.0.0")
 

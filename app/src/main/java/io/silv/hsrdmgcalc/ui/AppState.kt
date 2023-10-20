@@ -21,6 +21,7 @@ import io.silv.hsrdmgcalc.preferences.DisplayPrefs
 import io.silv.hsrdmgcalc.ui.composables.ExpandableState
 import io.silv.hsrdmgcalc.ui.composables.rememberExpandableState
 import io.silv.hsrdmgcalc.ui.screens.character.navigateToCharacterGraph
+import io.silv.hsrdmgcalc.ui.screens.light_cone.navigateToLightConeGraph
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -51,7 +52,7 @@ class AppState @OptIn(ExperimentalMaterial3Api::class) constructor(
         private set
 
     @OptIn(ExperimentalMaterial3Api::class)
-    var topAppBar by mutableStateOf<Pair<TopAppBarScrollBehavior, @Composable () -> Unit>>(
+    var topAppBar by mutableStateOf<Pair<TopAppBarScrollBehavior?, @Composable () -> Unit>>(
         initialTopAppBarScrollBehavior to {}
     )
 
@@ -91,7 +92,7 @@ class AppState @OptIn(ExperimentalMaterial3Api::class) constructor(
 
     @OptIn(ExperimentalMaterial3Api::class)
     fun clearTopAppBar() {
-        topAppBar = initialTopAppBarScrollBehavior to {}
+        topAppBar = null to {}
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -137,7 +138,7 @@ class AppState @OptIn(ExperimentalMaterial3Api::class) constructor(
             // Pop up to the start destination of the graph to
             // avoid building up a large stack of destinations
             // on the back stack as users select items
-            navController.currentDestination?.route?.let {
+            navController.currentBackStack.value.firstOrNull()?.destination?.id?.let {
                 popUpTo(it) {
                     saveState = true
                 }
@@ -151,7 +152,7 @@ class AppState @OptIn(ExperimentalMaterial3Api::class) constructor(
         when (destination) {
             HsrDestination.Character -> navController.navigateToCharacterGraph(topLevelNavOptions)
             HsrDestination.Relic -> navController.navigate(HsrDestination.Relic.route)
-            HsrDestination.LightCone -> navController.navigate(HsrDestination.LightCone.route)
+            HsrDestination.LightCone -> navController.navigateToLightConeGraph(topLevelNavOptions)
         }
     }
 }

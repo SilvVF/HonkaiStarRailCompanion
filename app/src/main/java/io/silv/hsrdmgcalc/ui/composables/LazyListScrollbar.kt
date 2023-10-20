@@ -97,9 +97,11 @@ fun ScrollbarLazyColumn(
 ) {
     val direction = LocalLayoutDirection.current
     val density = LocalDensity.current
+
     val positionOffset = remember(contentPadding) {
         with(density) { contentPadding.calculateEndPadding(direction).toPx() }
     }
+
     LazyColumn(
         modifier = modifier
             .drawVerticalScrollbar(
@@ -134,9 +136,11 @@ fun ScrollbarLazyGrid(
 ) {
     val direction = LocalLayoutDirection.current
     val density = LocalDensity.current
+
     val positionOffset = remember(contentPadding) {
         with(density) { contentPadding.calculateEndPadding(direction).toPx() }
     }
+
     LazyVerticalGrid(
         columns = columns,
         modifier = modifier
@@ -366,7 +370,7 @@ private fun Modifier.drawScrollbar(
 
     val context = LocalContext.current
     val thickness = remember { ViewConfiguration.get(context).scaledScrollBarSize.toFloat() }
-    val color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.364f)
+    val color = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
     Modifier
         .nestedScroll(nestedScrollConnection)
         .drawWithContent {

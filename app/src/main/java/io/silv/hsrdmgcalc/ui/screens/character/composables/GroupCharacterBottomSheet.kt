@@ -55,6 +55,11 @@ fun GroupCharactersBottomSheet(
             sheetState = sheetState,
             onDismissRequest = onDismissRequest,
         ) {
+            Text(
+                text = "Character grouping",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(12.dp)
+            )
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
@@ -70,7 +75,7 @@ fun GroupCharactersBottomSheet(
                     }
             ) {
                 Box(modifier = Modifier
-                    .padding(6.dp)
+                    .padding(8.dp)
                     .fillMaxWidth(0.1f)
                     .heightIn(40.dp),
                     Alignment.Center

@@ -4,6 +4,7 @@ CREATE TABLE Character(
     name TEXT PRIMARY KEY NOT NULL,
     owned INTEGER AS Boolean NOT NULL DEFAULT 0,
     level INTEGER NOT NULL DEFAULT 0,
+    ascension INTEGER NOT NULL DEFAULT 0,
     trace_skill INTEGER NOT NULL DEFAULT 0,
     trace_basic_atk INTEGER NOT NULL DEFAULT 0,
     trace_ultimate INTEGER NOT NULL DEFAULT 0,
@@ -22,7 +23,7 @@ selectAll:
 SELECT * FROM Character;
 
 selectByName:
-SELECT * FROM Character WHERE name = ?;
+SELECT * FROM Character WHERE name = ? LIMIT 1;
 
 selectWithLightCone:
 SELECT * FROM Character

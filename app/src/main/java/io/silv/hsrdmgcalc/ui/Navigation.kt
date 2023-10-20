@@ -13,7 +13,7 @@ import io.silv.hsrdmgcalc.ui.screens.character.CharacterGraphRoute
 import io.silv.hsrdmgcalc.ui.screens.character.characterGraph
 import io.silv.hsrdmgcalc.ui.screens.character_details.characterDetailsScreen
 import io.silv.hsrdmgcalc.ui.screens.character_details.navigateToCharacterDetails
-import io.silv.hsrdmgcalc.ui.screens.light_cone.LightConeScreen
+import io.silv.hsrdmgcalc.ui.screens.light_cone.lightConeGraph
 
 @Composable
 fun Navigation(
@@ -34,10 +34,13 @@ fun Navigation(
             characterDetailsScreen(appState)
         }
 
-        composable(
-            route = HsrDestination.LightCone.route
+        lightConeGraph(
+            appState,
+            onLightConeClick = { id ->
+
+            }
         ) {
-            LightConeScreen(appState = appState)
+
         }
 
         composable(

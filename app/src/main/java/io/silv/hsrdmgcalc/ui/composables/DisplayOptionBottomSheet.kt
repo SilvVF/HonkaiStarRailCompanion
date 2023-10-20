@@ -42,6 +42,7 @@ enum class CardType(val string: String) {
 fun DisplayOptionsBottomSheet(
     visible: Boolean,
     prefs: DisplayPrefs.Prefs,
+    optionsTitle: @Composable () -> Unit = {},
     onDismissRequest: () -> Unit,
     onGridSizeSelected: (Int) -> Unit,
     onAnimatePlacementChanged: (Boolean) -> Unit,
@@ -63,6 +64,7 @@ fun DisplayOptionsBottomSheet(
             sheetState = sheetState,
             onDismissRequest = onDismissRequest,
         ) {
+            optionsTitle()
             SelectCardType(
                 cardType = prefs.cardType,
                 onCardTypeSelected = onCardTypeSelected

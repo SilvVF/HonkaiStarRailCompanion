@@ -21,6 +21,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
 import io.silv.hsrdmgcalc.R
 import io.silv.hsrdmgcalc.ui.UiCharacter
@@ -91,6 +93,44 @@ fun CharacterListItem(
             contentDescription = character.path.name,
             modifier = Modifier.size(32.dp)
         )
+        Text(
+            text = rememberLevelAnnotatedString(character = character),
+            modifier = Modifier.padding(12.dp)
+        )
+    }
+}
+
+@Composable
+fun rememberLevelAnnotatedString(character: UiCharacter): AnnotatedString {
+    val s1 = MaterialTheme.typography.titleMedium.toSpanStyle()
+    return remember(character.level, character, s1) {
+        val lvl = "Lvl. ${character.level}"
+        val cap = "/${
+            when(character.ascension) {
+                0 -> 20
+                1 -> 40
+                2 -> 50
+                3 -> 60
+                4 -> 70
+                5 -> 80
+                6 -> 90
+                else -> ""
+            }
+        }"
+        buildAnnotatedString {
+            if (!character.owned) {
+                append("unowned")
+                return@buildAnnotatedString
+            }
+            append(lvl)
+            addStyle(style = s1, 0, lvl.length)
+            append(cap)
+            addStyle(
+                style = s1,
+                lvl.length,
+                lvl.length + cap.length
+            )
+        }
     }
 }
 

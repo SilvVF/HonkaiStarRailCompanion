@@ -16,8 +16,10 @@ import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
@@ -47,16 +49,18 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun LightConeScreen(
     appState: AppState,
-    viewModel: LightConeViewModel = koinViewModel()
+    viewModel: LightConeViewModel = koinViewModel(),
+    onLightConeClick: (id: String) -> Unit
 ) {
 
 
     LightConeScreenContent(
         appState = appState,
+        onLightConeClick = onLightConeClick,
         onGridSizeSelected = viewModel::updateGridCellCount,
         onAnimatePlacementChanged = viewModel::updateAnimateCardPlacement,
         onCardTypeSelected = viewModel::updateCardType,
-        onPathFilterSelected = {}
+        onPathFilterSelected = {},
     )
 }
 
@@ -64,6 +68,7 @@ fun LightConeScreen(
 @Composable
 private fun LightConeScreenContent(
     appState: AppState,
+    onLightConeClick: (id: String) -> Unit,
 
     onGridSizeSelected: (Int) -> Unit,
     onAnimatePlacementChanged: (Boolean) -> Unit,
@@ -80,6 +85,13 @@ private fun LightConeScreenContent(
     DisplayOptionsBottomSheet(
         visible = displayOptionsVisible,
         prefs = displayPrefs,
+        optionsTitle = {
+            Text(
+                text = "Light cone options",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(12.dp)
+            )
+        },
         onDismissRequest = { displayOptionsVisible = false },
         onGridSizeSelected = onGridSizeSelected,
         onAnimatePlacementChanged = onAnimatePlacementChanged,
