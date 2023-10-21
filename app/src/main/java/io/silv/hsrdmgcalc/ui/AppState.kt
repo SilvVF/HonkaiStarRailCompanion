@@ -5,6 +5,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
@@ -25,6 +27,7 @@ import io.silv.hsrdmgcalc.ui.screens.light_cone.navigateToLightConeGraph
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import org.koin.compose.rememberKoinInject
 import java.util.UUID
 
@@ -34,14 +37,22 @@ fun rememberAppState(
     navController: NavHostController,
     bottomBarState: ExpandableState = rememberExpandableState(startProgress = SheetValue.Hidden),
     scope: CoroutineScope = rememberCoroutineScope(),
+    windowSizeClass: WindowSizeClass,
     initialTopAppBarScrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 ) = remember {
-    AppState(navController, bottomBarState, scope, initialTopAppBarScrollBehavior)
+    AppState(
+        navController,
+        bottomBarState,
+        windowSizeClass,
+        scope,
+        initialTopAppBarScrollBehavior
+    )
 }
 
 class AppState @OptIn(ExperimentalMaterial3Api::class) constructor(
     val navController: NavHostController,
     val bottomBarState: ExpandableState,
+    val windowSizeClass: WindowSizeClass,
     private val scope: CoroutineScope,
     private val initialTopAppBarScrollBehavior: TopAppBarScrollBehavior
 ) {
@@ -56,14 +67,21 @@ class AppState @OptIn(ExperimentalMaterial3Api::class) constructor(
         initialTopAppBarScrollBehavior to {}
     )
 
+
     val destinationTappedActions =
-        mutableStateMapOf<HsrDestination, List<Pair<UUID, suspend () -> Unit>>>()
+        mutableStateMapOf<HsrDestination, suspend () -> Unit>()
 
     val destinations = listOf<HsrDestination>(
         HsrDestination.Character,
         HsrDestination.LightCone,
         HsrDestination.Relic
     )
+
+    val shouldShowBottomBar: Boolean
+        get() = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact
+
+    val shouldShowNavRail: Boolean
+        get() = !shouldShowBottomBar
 
     val displayPrefs: DisplayPrefs
         @Composable get() {
@@ -99,40 +117,37 @@ class AppState @OptIn(ExperimentalMaterial3Api::class) constructor(
     fun changeDraggableBottomBarContent(
         peekContent: @Composable () -> Unit,
         content: @Composable () -> Unit,
-    ): UUID {
-        prevId?.let { clearDraggableBottomBarContent(it) }
+    ) {
         draggablePeekContent = peekContent
         draggableContent = content
-        return UUID.randomUUID().also { prevId = it }
     }
 
     fun onDestinationClick(
         destination: HsrDestination,
         action: suspend () -> Unit
-    ): UUID {
-        val id = UUID.randomUUID()
-        destinationTappedActions[destination] =
-            (destinationTappedActions[destination] ?: emptyList()) + (id to action )
-        return id
-    }
-
-    fun removeOnDestinationClick(destination: HsrDestination,id: UUID) {
-        destinationTappedActions[destination] =
-            destinationTappedActions
-                .getOrDefault(destination, emptyList())
-                .filter { (actionId, _) -> actionId != id }
+    ) {
+        destinationTappedActions[destination] = action
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
-    fun clearDraggableBottomBarContent(id : UUID) {
-        if (prevId == id) {
-            prevId = null
-            draggableContent = null
-            draggablePeekContent = null
+    fun clearDraggableBottomBarContent() {
+        prevId = null
+        draggableContent = null
+        draggablePeekContent = null
+    }
+
+    fun handleDestinationClick(destination: HsrDestination) {
+        Log.d("NAVBAR", "current = ${navController.currentDestination}, going to =$destination")
+        if (navController.currentDestination?.route == destination.route) {
+            scope.launch {
+                destinationTappedActions[destination]?.invoke()
+            }
+        } else {
+            navigateToHsrDestination(destination)
         }
     }
 
-    fun navigateToHsrDestination(destination: HsrDestination) {
+    private fun navigateToHsrDestination(destination: HsrDestination) {
         Log.d("Navigation", "trying to navigate to $destination")
         val topLevelNavOptions = navOptions {
             // Pop up to the start destination of the graph to
@@ -151,7 +166,7 @@ class AppState @OptIn(ExperimentalMaterial3Api::class) constructor(
         }
         when (destination) {
             HsrDestination.Character -> navController.navigateToCharacterGraph(topLevelNavOptions)
-            HsrDestination.Relic -> navController.navigate(HsrDestination.Relic.route)
+            HsrDestination.Relic -> navController.navigate("relic_graph", topLevelNavOptions)
             HsrDestination.LightCone -> navController.navigateToLightConeGraph(topLevelNavOptions)
         }
     }

@@ -1,7 +1,7 @@
 package io.silv.hsrdmgcalc.ui.composables
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import io.silv.hsrdmgcalc.ui.AppState
@@ -16,11 +16,10 @@ fun LaunchedOnSelectedDestinationClick(
 
     val onClick by rememberUpdatedState(action)
 
-    DisposableEffect(key1 = Unit) {
-        val id = appState.onDestinationClick(
+    SideEffect {
+        appState.onDestinationClick(
             destination,
             onClick
         )
-        onDispose { appState.removeOnDestinationClick(destination, id) }
     }
 }

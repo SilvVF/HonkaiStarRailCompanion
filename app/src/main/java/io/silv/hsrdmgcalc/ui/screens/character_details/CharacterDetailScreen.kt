@@ -20,6 +20,7 @@ fun CharacterDetails(
     viewModel: CharacterDetailsViewModel = koinViewModel()
 ) {
     SideEffect {
+        appState.clearDraggableBottomBarContent()
         appState.clearTopAppBar()
     }
 

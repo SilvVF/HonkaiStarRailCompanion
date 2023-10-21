@@ -142,7 +142,7 @@ fun CompactCharacterCard(
 ) {
     Card(
         modifier = modifier,
-        shape = RoundedCornerShape(20),
+        shape = RoundedCornerShape(10),
     ) {
         Box(
             Modifier
@@ -206,7 +206,7 @@ fun ExtraCompactCharacterCard(
 ) {
     Card(
         modifier = modifier,
-        shape = RoundedCornerShape(20)
+        shape = RoundedCornerShape(10)
     ) {
         Box(
             Modifier

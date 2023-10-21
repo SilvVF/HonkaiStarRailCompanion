@@ -132,14 +132,14 @@ private fun Toolbar(
                     type = character.type.name,
                     contentDescription = null,
                     modifier = Modifier
-                        .padding(horizontal = 4.dp)
+                        .padding(horizontal = 12.dp)
                         .size(36.dp)
                 )
                 PathIcon(
                     path = character.path,
                     contentDescription = null,
                     modifier = Modifier
-                        .padding(horizontal = 4.dp)
+                        .padding(horizontal = 12.dp)
                         .size(36.dp)
                 )
             },
@@ -254,7 +254,8 @@ private fun Header(
         CharacterSplashArt(
             character = character.name,
             contentDescription = "",
-            contentScale = ContentScale.FillBounds
+            contentScale = ContentScale.FillHeight,
+            modifier = Modifier.align(Alignment.CenterEnd)
         )
     }
 }

@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.items
@@ -122,7 +122,10 @@ private fun CharacterScreenContent(
     val appPrefs = appState.displayPrefs
     val displayPrefs = appPrefs.characterPrefs
 
-    LaunchedOnSelectedDestinationClick(appState = appState, destination = HsrDestination.Character) {
+    LaunchedOnSelectedDestinationClick(
+        appState = appState,
+        destination = HsrDestination.Character
+    ) {
         appState.bottomBarState.toggleProgress()
     }
 
@@ -210,7 +213,7 @@ private fun CharacterScreenContent(
                 top = paddingValues.calculateTopPadding(),
                 start = paddingValues.calculateStartPadding(LocalLayoutDirection.current),
                 end = paddingValues.calculateEndPadding(LocalLayoutDirection.current),
-                bottom = LocalNavBarHeight.current
+                bottom = if (appState.shouldShowBottomBar) LocalNavBarHeight.current else 0.dp
             )
             .fillMaxSize()
     ) {
@@ -229,11 +232,15 @@ private fun CharacterScreenContent(
                     items = filteredCharacter,
                     key = { item: CharacterWithItems -> item.character.name }
                 ) {item ->
-                    val height = (LocalConfiguration.current.screenHeightDp * 0.1f).dp
                     CharacterListItem(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .heightIn(60.dp, height)
+                            .height(
+                                if (appState.shouldShowBottomBar)
+                                    (LocalConfiguration.current.screenHeightDp * .1f).dp
+                                else
+                                   (LocalConfiguration.current.screenHeightDp * .3f).dp
+                            )
                             .clickable(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = rememberRipple(

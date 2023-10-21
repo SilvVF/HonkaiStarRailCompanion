@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,6 +12,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
@@ -55,63 +58,73 @@ fun GroupCharactersBottomSheet(
             sheetState = sheetState,
             onDismissRequest = onDismissRequest,
         ) {
-            Text(
-                text = "Character grouping",
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(12.dp)
-            )
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable {
-                        updateSortByLevel(
-                            when (prefs.level) {
-                                Grouping.ASC -> Grouping.NONE
-                                Grouping.DSC -> Grouping.ASC
-                                Grouping.NONE -> Grouping.DSC
-                            }
-                        )
-                    }
+            Column(
+                Modifier.verticalScroll(rememberScrollState())
             ) {
-                Box(modifier = Modifier
-                    .padding(8.dp)
-                    .fillMaxWidth(0.1f)
-                    .heightIn(40.dp),
-                    Alignment.Center
+                Text(
+                    text = "Character grouping",
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(12.dp)
+                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            updateSortByLevel(
+                                when (prefs.level) {
+                                    Grouping.ASC -> Grouping.NONE
+                                    Grouping.DSC -> Grouping.ASC
+                                    Grouping.NONE -> Grouping.DSC
+                                }
+                            )
+                        }
                 ) {
-                   AnimatedContent(targetState = prefs.level, label = "") {
-                       when (it) {
-                           Grouping.ASC -> Icon(
-                               imageVector = Icons.Filled.ArrowUpward,
-                               contentDescription = null,
-                               tint = MaterialTheme.colorScheme.primary
-                           )
-                           Grouping.DSC -> Icon(
-                               imageVector = Icons.Filled.ArrowDownward,
-                               contentDescription = null,
-                               tint = MaterialTheme.colorScheme.primary
-                           )
-                           Grouping.NONE -> Text(text = "N/A", color = MaterialTheme.colorScheme.primary)
-                       }
+                    Box(
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .fillMaxWidth(0.1f)
+                            .heightIn(40.dp),
+                        Alignment.Center
+                    ) {
+                        AnimatedContent(targetState = prefs.level, label = "") {
+                            when (it) {
+                                Grouping.ASC -> Icon(
+                                    imageVector = Icons.Filled.ArrowUpward,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+
+                                Grouping.DSC -> Icon(
+                                    imageVector = Icons.Filled.ArrowDownward,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+
+                                Grouping.NONE -> Text(
+                                    text = "N/A",
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
                     }
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text("Sort by level")
                 }
-                Spacer(modifier = Modifier.width(6.dp))
-                Text("Sort by level")
+                CheckBoxWithLabel(
+                    modifier = Modifier.fillMaxWidth(),
+                    label = "Show five star only",
+                    checked = prefs.fiveStarOnly,
+                    onCheckChanged = updateFiveStarOnly
+                )
+                CheckBoxWithLabel(
+                    modifier = Modifier.fillMaxWidth(),
+                    label = "Show owned only",
+                    checked = prefs.ownedOnly,
+                    onCheckChanged = updateOwnedOnly
+                )
+                Spacer(Modifier.height(32.dp))
             }
-            CheckBoxWithLabel(
-                modifier = Modifier.fillMaxWidth(),
-                label = "Show five star only",
-                checked = prefs.fiveStarOnly,
-                onCheckChanged = updateFiveStarOnly
-            )
-            CheckBoxWithLabel(
-                modifier = Modifier.fillMaxWidth(),
-                label = "Show owned only",
-                checked = prefs.ownedOnly,
-                onCheckChanged = updateOwnedOnly
-            )
-            Spacer(Modifier.height(32.dp))
         }
     }
 }

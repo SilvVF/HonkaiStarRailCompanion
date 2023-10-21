@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -64,22 +66,26 @@ fun DisplayOptionsBottomSheet(
             sheetState = sheetState,
             onDismissRequest = onDismissRequest,
         ) {
-            optionsTitle()
-            SelectCardType(
-                cardType = prefs.cardType,
-                onCardTypeSelected = onCardTypeSelected
-            )
-            GridSizeSelector(
-                Modifier.fillMaxWidth(),
-                onSizeSelected = onGridSizeSelected,
-                size = prefs.gridCells
-            )
-            AnimatePlacementCheckBox(
-                animatePlacement = prefs.animateCardPlacement,
-                onCheckChanged = onAnimatePlacementChanged,
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(Modifier.height(32.dp))
+            Column(
+                Modifier.verticalScroll(rememberScrollState())
+            ) {
+                optionsTitle()
+                SelectCardType(
+                    cardType = prefs.cardType,
+                    onCardTypeSelected = onCardTypeSelected
+                )
+                GridSizeSelector(
+                    Modifier.fillMaxWidth(),
+                    onSizeSelected = onGridSizeSelected,
+                    size = prefs.gridCells
+                )
+                AnimatePlacementCheckBox(
+                    animatePlacement = prefs.animateCardPlacement,
+                    onCheckChanged = onAnimatePlacementChanged,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(Modifier.height(32.dp))
+            }
         }
     }
 }

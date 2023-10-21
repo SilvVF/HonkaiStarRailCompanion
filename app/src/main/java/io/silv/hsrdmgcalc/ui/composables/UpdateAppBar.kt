@@ -1,7 +1,7 @@
 package io.silv.hsrdmgcalc.ui.composables
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.SideEffect
 import io.silv.hsrdmgcalc.ui.AppState
 
 @Composable
@@ -10,15 +10,17 @@ fun UpdateBottomAppBar(
     peekContent: @Composable () -> Unit,
     content: @Composable () -> Unit,
 ) {
-    DisposableEffect(Unit) {
-
-       val id = appState.changeDraggableBottomBarContent(
+    SideEffect {
+       appState.changeDraggableBottomBarContent(
             peekContent = peekContent,
             content =  content,
         )
+    }
+}
 
-        onDispose {
-            appState.clearDraggableBottomBarContent(id)
-        }
+@Composable
+fun UpdateBlankBottomAppBar(appState: AppState) {
+    SideEffect {
+        appState.clearDraggableBottomBarContent()
     }
 }

@@ -15,9 +15,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.util.fastForEach
 import io.silv.hsrdmgcalc.ui.AppState
 import io.silv.hsrdmgcalc.ui.HsrDestination
-import kotlinx.coroutines.launch
 
 @Composable
 fun BottomBarWithDraggableContent(
@@ -49,19 +49,11 @@ fun BottomBarWithDraggableContent(
         BottomAppBar(
             Modifier.height(navBarHeight)
         ) {
-            appState.destinations.forEach { dest ->
+            appState.destinations.fastForEach { dest ->
                 NavigationBarItem(
                     selected = selectedDest == dest,
                     onClick = {
-                        if (appState.navController.currentDestination == dest) {
-                            for ((_, action) in appState.destinationTappedActions[dest] ?: emptyList()) {
-                                scope.launch {
-                                    action.invoke()
-                                }
-                            }
-                        } else {
-                            appState.navigateToHsrDestination(dest)
-                        }
+                        appState.handleDestinationClick(dest)
                     },
                     icon = { dest.icon(selectedDest == dest) }
                 )
