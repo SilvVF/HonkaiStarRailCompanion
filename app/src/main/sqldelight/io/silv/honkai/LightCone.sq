@@ -1,13 +1,23 @@
+import kotlin.Boolean;
+
 CREATE TABLE LightCone (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     level INTEGER NOT NULL DEFAULT 1,
     superimpose INTEGER NOT NULL DEFAULT 1,
+    owned INTEGER AS Boolean NOT NULL DEFAULT 0,
     location TEXT
-);
+ );
+
+prepopulate:
+INSERT OR IGNORE INTO LightCone(id, name) VALUES (?, ?);
+
 
 insert:
 INSERT OR REPLACE INTO LightCone VALUES ?;
 
 selectAll:
 SELECT * FROM LightCone;
+
+selectByName:
+SELECT * FROM LightCone WHERE name = ?;

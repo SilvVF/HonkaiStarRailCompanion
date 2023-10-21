@@ -21,31 +21,52 @@ class PrepopulateWorker(
     private val db by inject<HonkaiDatabase>()
     private val dataPrefs by inject<DataPreferences>()
 
-    override suspend fun doWork(): Result {
-
-        if (dataPrefs.characterListVersion() == HonkaiConstants.CharacterListVersion) {
-            Log.d(TAG, "Skipping prepopulate versions matched version: ${HonkaiConstants.CharacterListVersion}")
-            return Result.success()
+    private suspend fun prepopulateLightCones() = runCatching {
+        if(dataPrefs.lightConeListVersion() == HonkaiConstants.LightConeListVersion) {
+            Log.d(TAG, "Skipping prepopulate lightcone versions matched version: ${HonkaiConstants.CharacterListVersion}")
+            return@runCatching
         }
 
-        Log.d(TAG, "Updating Character table version to match version: ${HonkaiConstants.CharacterListVersion}")
+        db.transaction {
+            HonkaiConstants.lightCones.forEach { name ->
 
-        val result = runCatching {
-
-            db.transaction {
-                HonkaiConstants.characters.forEach { name ->
-                    db.characterQueries.prepopulate(name)
+                if (db.lightConeQueries.selectByName(name).executeAsList().isEmpty()) {
+                    db.lightConeQueries.prepopulate(null, name)
                 }
             }
-
-            dataPrefs.updateCharacterListVersion(HonkaiConstants.CharacterListVersion)
         }
 
-        return if (result.isSuccess) {
-            Log.d(TAG, "Successfully updated Character table version to match version: ${HonkaiConstants.CharacterListVersion}")
+        dataPrefs.updateLightConeListVersion(HonkaiConstants.LightConeListVersion)
+    }
+        .onFailure { Log.d(TAG, "Failed to prepopulate light cones") }
+
+    private suspend fun prepopulateCharacters() = runCatching {
+        if(dataPrefs.characterListVersion() == HonkaiConstants.CharacterListVersion) {
+            Log.d(TAG, "Skipping prepopulate character versions matched version: ${HonkaiConstants.CharacterListVersion}")
+            return@runCatching
+        }
+
+        db.transaction {
+            HonkaiConstants.characters.forEach { name ->
+                db.characterQueries.prepopulate(name)
+            }
+        }
+
+        dataPrefs.updateCharacterListVersion(HonkaiConstants.CharacterListVersion)
+    }
+        .onFailure { Log.d(TAG, "Failed to prepopulate characters") }
+
+    override suspend fun doWork(): Result {
+        return if (
+            listOf(
+                prepopulateCharacters(),
+                prepopulateLightCones()
+            ).all { result ->
+                result.isSuccess
+            }
+        ) {
             Result.success()
         } else {
-            Log.e(TAG, "Failed to updated Character table version to match version: ${HonkaiConstants.CharacterListVersion} ${result.exceptionOrNull()?.message}")
             Result.retry()
         }
     }

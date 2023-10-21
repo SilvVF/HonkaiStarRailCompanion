@@ -1,9 +1,10 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package io.silv.hsrdmgcalc.ui
 
 import android.util.Log
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SheetValue
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
@@ -29,32 +30,27 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.koin.compose.rememberKoinInject
-import java.util.UUID
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun rememberAppState(
     navController: NavHostController,
     bottomBarState: ExpandableState = rememberExpandableState(startProgress = SheetValue.Hidden),
     scope: CoroutineScope = rememberCoroutineScope(),
     windowSizeClass: WindowSizeClass,
-    initialTopAppBarScrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 ) = remember {
     AppState(
         navController,
         bottomBarState,
         windowSizeClass,
         scope,
-        initialTopAppBarScrollBehavior
     )
 }
 
-class AppState @OptIn(ExperimentalMaterial3Api::class) constructor(
+class AppState(
     val navController: NavHostController,
     val bottomBarState: ExpandableState,
     val windowSizeClass: WindowSizeClass,
     private val scope: CoroutineScope,
-    private val initialTopAppBarScrollBehavior: TopAppBarScrollBehavior
 ) {
     var draggablePeekContent by mutableStateOf<(@Composable () -> Unit)?>(null)
         private set
@@ -64,14 +60,14 @@ class AppState @OptIn(ExperimentalMaterial3Api::class) constructor(
 
     @OptIn(ExperimentalMaterial3Api::class)
     var topAppBar by mutableStateOf<Pair<TopAppBarScrollBehavior?, @Composable () -> Unit>>(
-        initialTopAppBarScrollBehavior to {}
+        null to {}
     )
 
 
-    val destinationTappedActions =
+    private val destinationTappedActions =
         mutableStateMapOf<HsrDestination, suspend () -> Unit>()
 
-    val destinations = listOf<HsrDestination>(
+    val destinations = listOf(
         HsrDestination.Character,
         HsrDestination.LightCone,
         HsrDestination.Relic
@@ -101,19 +97,12 @@ class AppState @OptIn(ExperimentalMaterial3Api::class) constructor(
                     ?: HsrDestination.Character
             }
 
-    private var prevId: UUID? = null
-
-    @OptIn(ExperimentalMaterial3Api::class)
     fun changeTopAppBar(scrollBehavior: TopAppBarScrollBehavior, topBar: @Composable () -> Unit) {
         topAppBar = scrollBehavior to topBar
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
-    fun clearTopAppBar() {
-        topAppBar = null to {}
-    }
+    fun clearTopAppBar() { topAppBar = null to {} }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     fun changeDraggableBottomBarContent(
         peekContent: @Composable () -> Unit,
         content: @Composable () -> Unit,
@@ -129,15 +118,13 @@ class AppState @OptIn(ExperimentalMaterial3Api::class) constructor(
         destinationTappedActions[destination] = action
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     fun clearDraggableBottomBarContent() {
-        prevId = null
         draggableContent = null
         draggablePeekContent = null
     }
 
     fun handleDestinationClick(destination: HsrDestination) {
-        Log.d("NAVBAR", "current = ${navController.currentDestination}, going to =$destination")
+        Log.d("NAVBAR", "current = ${navController.currentDestination}, going to = $destination")
         if (navController.currentDestination?.route == destination.route) {
             scope.launch {
                 destinationTappedActions[destination]?.invoke()

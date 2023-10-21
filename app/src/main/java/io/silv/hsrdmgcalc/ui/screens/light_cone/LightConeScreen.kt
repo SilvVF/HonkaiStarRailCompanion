@@ -30,10 +30,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.silv.hsrdmgcalc.LocalNavBarHeight
 import io.silv.hsrdmgcalc.LocalPaddingValues
 import io.silv.hsrdmgcalc.ui.AppState
 import io.silv.hsrdmgcalc.ui.HsrDestination
+import io.silv.hsrdmgcalc.ui.UiLightCone
 import io.silv.hsrdmgcalc.ui.composables.CardType
 import io.silv.hsrdmgcalc.ui.composables.DisplayOptionsBottomSheet
 import io.silv.hsrdmgcalc.ui.composables.LaunchedOnSelectedDestinationClick
@@ -42,8 +44,8 @@ import io.silv.hsrdmgcalc.ui.composables.Path
 import io.silv.hsrdmgcalc.ui.composables.SearchTopAppBar
 import io.silv.hsrdmgcalc.ui.composables.UpdateBottomAppBar
 import io.silv.hsrdmgcalc.ui.composables.UpdateTopBar
-import io.silv.hsrdmgcalc.ui.composables.lightCones
 import io.silv.hsrdmgcalc.ui.composables.pathFilterRow
+import kotlinx.collections.immutable.ImmutableList
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -53,9 +55,11 @@ fun LightConeScreen(
     onLightConeClick: (id: String) -> Unit
 ) {
 
+    val lightCones by viewModel.lightCones.collectAsStateWithLifecycle()
 
     LightConeScreenContent(
         appState = appState,
+        lightCones = lightCones,
         onLightConeClick = onLightConeClick,
         onGridSizeSelected = viewModel::updateGridCellCount,
         onAnimatePlacementChanged = viewModel::updateAnimateCardPlacement,
@@ -69,6 +73,7 @@ fun LightConeScreen(
 private fun LightConeScreenContent(
     appState: AppState,
     onLightConeClick: (id: String) -> Unit,
+    lightCones: ImmutableList<UiLightCone>,
 
     onGridSizeSelected: (Int) -> Unit,
     onAnimatePlacementChanged: (Boolean) -> Unit,
@@ -168,18 +173,18 @@ private fun LightConeScreenContent(
     ) {
         if (displayPrefs.cardType == CardType.List) {
             LazyColumn {
-                items(lightCones) {name ->
+                items(lightCones) {lightCone ->
 
-                    LightConeIcon(name = name)
+                    LightConeIcon(name = lightCone.name)
                 }
             }
         } else {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(displayPrefs.gridCells)
             ) {
-                items(lightCones) {name ->
+                items(lightCones) {lightCone ->
 
-                    LightConeIcon(name = name, Modifier.size(200.dp))
+                    LightConeIcon(name = lightCone.name, Modifier.size(200.dp))
                 }
             }
         }
