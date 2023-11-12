@@ -1,8 +1,8 @@
 package io.silv.hsrdmgcalc.ui.screens.character_details
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
@@ -34,14 +34,9 @@ fun CharacterDetailSuccessScreen(
     CollapsingToolbarLayout(
         character = character,
     ) {
-        Column(
-            Modifier
-                .fillMaxSize()
-                .padding(vertical = 12.dp)
-        ) {
-            repeat(40) {
-                Text(text = "sdfaf")
-            }
+        Spacer(modifier = Modifier.height(40.dp))
+        repeat(40) {
+            Text(text = "sdfaf", Modifier.fillMaxWidth())
         }
     }
 }

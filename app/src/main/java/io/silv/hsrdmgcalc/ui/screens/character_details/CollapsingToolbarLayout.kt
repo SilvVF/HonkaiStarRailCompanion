@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -50,8 +51,17 @@ import io.silv.hsrdmgcalc.ui.composables.CharacterSplashArt
 import io.silv.hsrdmgcalc.ui.composables.PathIcon
 import io.silv.hsrdmgcalc.ui.composables.TypeIcon
 
-private val headerHeight = 275.dp
-private val toolbarHeight = 78.dp
+private val headerHeight = 250.dp
+private val toolbarHeight = 56.dp
+
+private val paddingMedium = 16.dp
+
+private val titlePaddingStart = 16.dp
+private val titlePaddingEnd = 72.dp
+
+private const val titleFontScaleStart = 1f
+private const val titleFontScaleEnd = 0.66f
+
 
 // Example code found in this article from ProAndroidDev
 // https://proandroiddev.com/collapsing-toolbar-with-parallax-effect-and-curve-motion-in-jetpack-compose-9ed1c3c0393f
@@ -61,29 +71,45 @@ private val toolbarHeight = 78.dp
 @Composable
 fun CollapsingToolbarLayout(
     character: UiCharacter,
+    modifier: Modifier = Modifier,
     body: @Composable ColumnScope.() -> Unit
 ) {
 
-    val scroll = rememberScrollState(0)
-    val headerHeightPx = with(LocalDensity.current) { headerHeight.toPx() }
-    val toolbarHeightPx = with(LocalDensity.current) { toolbarHeight.toPx() }
+    val scroll: ScrollState = rememberScrollState(0)
+    val localDensity = LocalDensity.current
 
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .background(
-            MaterialTheme.colorScheme.surface
+    val headerHeightPx = with(localDensity) { headerHeight.toPx() }
+    val toolbarHeightPx = with(localDensity) { toolbarHeight.toPx() }
+
+    Box(modifier = modifier) {
+        Header(
+            scroll = scroll,
+            headerHeightPx = headerHeightPx,
+            character = character,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(headerHeight)
         )
-    ) {
-        Header(character,scroll, headerHeightPx)
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.verticalScroll(scroll)
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(scroll)
         ) {
-            Spacer(Modifier.height(headerHeight + 20.dp))
+            Spacer(Modifier.height(headerHeight))
             body()
         }
-        Toolbar(scroll, character, headerHeightPx, toolbarHeightPx)
-        Title(character.name, scroll, headerHeightPx, toolbarHeightPx)
+        Toolbar(
+            scroll = scroll,
+            headerHeightPx = headerHeightPx,
+            toolbarHeightPx = toolbarHeightPx,
+            character = character,
+        )
+        Title(
+            scroll = scroll,
+            text = formatText(text = character.name),
+            modifier = Modifier.statusBarsPadding()
+        )
     }
 }
 
@@ -96,9 +122,14 @@ private fun Toolbar(
     toolbarHeightPx: Float
 ) {
 
-    val toolbarBottom = headerHeightPx - toolbarHeightPx
+    val toolbarBottom by remember {
+        mutableFloatStateOf(headerHeightPx - toolbarHeightPx)
+    }
+
     val showToolbar by remember {
-        derivedStateOf { scroll.value >= toolbarBottom }
+        derivedStateOf {
+            scroll.value >= toolbarBottom
+        }
     }
 
     AnimatedVisibility(
@@ -116,8 +147,8 @@ private fun Toolbar(
                 IconButton(
                     onClick = {},
                     modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .size(36.dp)
+                        .padding(16.dp)
+                        .size(24.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Menu,
@@ -154,15 +185,11 @@ private fun Toolbar(
 private fun Title(
     text: String,
     scroll: ScrollState,
-    headerHeightPx: Float,
-    toolbarHeightPx: Float
+    modifier: Modifier = Modifier,
 ) {
-    val paddingMedium = 16.dp
-    val titlePaddingStart = 16.dp
-    val titlePaddingEnd = 72.dp
-
     var titleHeightPx by remember { mutableFloatStateOf(0f) }
-    val titleHeightDp = with(LocalDensity.current) { titleHeightPx.toDp() }
+    var titleWidthPx by remember { mutableFloatStateOf(0f) }
+
 
     Text(
         text = formatText(text = text),
@@ -171,22 +198,41 @@ private fun Title(
         lineHeight = 32.sp,
         overflow = TextOverflow.Ellipsis,
         fontWeight = FontWeight.Bold,
-        modifier = Modifier
-            .padding(top = 18.dp)
-            .fillMaxWidth(0.55f)
+        modifier = modifier
+            .fillMaxWidth(0.7f)
             .graphicsLayer {
-                val collapseRange: Float = (headerHeightPx - toolbarHeightPx)
+                val collapseRange: Float = (headerHeight.toPx() - toolbarHeight.toPx())
                 val collapseFraction: Float = (scroll.value / collapseRange).coerceIn(0f, 1f)
 
+                val scaleXY = lerp(
+                    titleFontScaleStart.dp,
+                    titleFontScaleEnd.dp,
+                    collapseFraction
+                )
+
+                val titleExtraStartPadding = titleWidthPx.toDp() * (1 - scaleXY.value) / 2f
+
                 val titleYFirstInterpolatedPoint = lerp(
-                    headerHeight - titleHeightDp - paddingMedium,
+                    headerHeight - titleHeightPx.toDp() - paddingMedium,
                     headerHeight / 2,
+                    collapseFraction
+                )
+
+                val titleXFirstInterpolatedPoint = lerp(
+                    titlePaddingStart,
+                    (titlePaddingEnd - titleExtraStartPadding) * 5 / 4,
                     collapseFraction
                 )
 
                 val titleYSecondInterpolatedPoint = lerp(
                     headerHeight / 2,
-                    toolbarHeight / 2 - titleHeightDp / 2,
+                    toolbarHeight / 2 - titleHeightPx.toDp() / 2,
+                    collapseFraction
+                )
+
+                val titleXSecondInterpolatedPoint = lerp(
+                    (titlePaddingEnd - titleExtraStartPadding) * 5 / 4,
+                    titlePaddingEnd - titleExtraStartPadding,
                     collapseFraction
                 )
 
@@ -196,19 +242,6 @@ private fun Title(
                     collapseFraction
                 )
 
-                val titleXFirstInterpolatedPoint = lerp(
-                    titlePaddingStart,
-                    titlePaddingEnd * 5 / 4,
-                    collapseFraction
-                )
-
-                val titleXSecondInterpolatedPoint = lerp(
-                    titlePaddingEnd * 5 / 4,
-                    titlePaddingEnd,
-                    collapseFraction
-                )
-
-
                 val titleX = lerp(
                     titleXFirstInterpolatedPoint,
                     titleXSecondInterpolatedPoint,
@@ -217,11 +250,12 @@ private fun Title(
 
                 translationY = titleY.toPx()
                 translationX = titleX.toPx()
+                scaleX = scaleXY.value
+                scaleY = scaleXY.value
             }
             .onGloballyPositioned {
-                // We don't know title height in advance to calculate the lerp
-                // so we wait for initial composition
                 titleHeightPx = it.size.height.toFloat()
+                titleWidthPx = it.size.width.toFloat()
             }
     )
 }
@@ -230,15 +264,16 @@ private fun Title(
 private fun Header(
     character: UiCharacter,
     scroll: ScrollState,
-    headerHeightPx: Float
+    headerHeightPx: Float,
+    modifier: Modifier = Modifier,
 ) {
 
-    Box(modifier = Modifier
+    Box(modifier = modifier
         .fillMaxWidth()
         .height(headerHeight)
         .graphicsLayer {
-            alpha = ((-1f / headerHeightPx) * scroll.value) + 1
-            translationY = -scroll.value.toFloat() / 2f // Parallax effect
+            translationY = - scroll.value.toFloat() / 2f // Parallax effect
+            alpha = (-1f / headerHeightPx) * scroll.value + 1
         }
     ) {
         Box(
@@ -246,9 +281,14 @@ private fun Header(
                 .fillMaxSize()
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(character.type.color, MaterialTheme.colorScheme.surface),
-                        // startY = 3 * headerHeightPx / 4 // to wrap the title only
+                        colors = listOf(character.type.color, Color.Transparent),
+                        startY = 3 * headerHeightPx / 4 // Gradient applied to wrap the title only
                     )
+//                    brush = Brush.verticalGradient(
+//
+//                        colors = listOf(character.type.color, MaterialTheme.colorScheme.surface),
+//                        // startY = 3 * headerHeightPx / 4 // to wrap the title only
+//                    )
                 )
         )
         CharacterSplashArt(
