@@ -19,7 +19,7 @@ fun UpdateBottomAppBar(
 }
 
 @Composable
-fun UpdateBlankBottomAppBar(appState: AppState) {
+fun ClearBottomAppBarExpandableContent(appState: AppState) {
     SideEffect {
         appState.clearDraggableBottomBarContent()
     }

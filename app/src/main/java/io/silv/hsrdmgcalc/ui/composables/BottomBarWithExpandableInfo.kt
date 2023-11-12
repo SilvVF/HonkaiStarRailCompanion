@@ -17,7 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.util.fastForEach
 import io.silv.hsrdmgcalc.ui.AppState
-import io.silv.hsrdmgcalc.ui.HsrDestination
+import io.silv.hsrdmgcalc.ui.navigation.HsrDestination
 
 @Composable
 fun BottomBarWithDraggableContent(
@@ -25,7 +25,7 @@ fun BottomBarWithDraggableContent(
     navBarHeight: Dp,
 ) {
 
-    val selectedDest by appState.currentDestination.collectAsState(initial = HsrDestination.Character)
+    val selectedDest by appState.currentTopLevelDest.collectAsState(initial = HsrDestination.Character)
     val scope = rememberCoroutineScope()
 
     Column {

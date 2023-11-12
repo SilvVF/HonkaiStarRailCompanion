@@ -1,4 +1,4 @@
-package io.silv.hsrdmgcalc.ui
+package io.silv.hsrdmgcalc.ui.navigation
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,7 +9,10 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
-import io.silv.hsrdmgcalc.ui.composables.UpdateBlankBottomAppBar
+import io.silv.hsrdmgcalc.ui.AppState
+import io.silv.hsrdmgcalc.ui.composables.ClearBottomAppBarExpandableContent
+import io.silv.hsrdmgcalc.ui.screens.add_light_cone.addLightConeScreen
+import io.silv.hsrdmgcalc.ui.screens.add_light_cone.navigateToAddLightCone
 import io.silv.hsrdmgcalc.ui.screens.character.CharacterGraphRoute
 import io.silv.hsrdmgcalc.ui.screens.character.characterGraph
 import io.silv.hsrdmgcalc.ui.screens.character_details.characterDetailsScreen
@@ -39,9 +42,14 @@ fun Navigation(
             appState,
             onLightConeClick = { id ->
 
+            },
+            onAddLightConeClick = { navResultCallback ->
+                navController.navigateToAddLightCone(navResultCallback)
             }
         ) {
-
+            addLightConeScreen(appState) { result ->
+                navController.popBackStackWithResult(result)
+            }
         }
 
         navigation(
@@ -49,7 +57,7 @@ fun Navigation(
             route = "relic_graph",
         ) {
             composable(HsrDestination.Relic.route) {
-                UpdateBlankBottomAppBar(appState = appState)
+                ClearBottomAppBarExpandableContent(appState = appState)
 
                 Box(modifier = Modifier.fillMaxSize()) {
                     Text("Relic", Modifier.align(Alignment.Center))

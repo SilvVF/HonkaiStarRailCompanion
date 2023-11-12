@@ -7,7 +7,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import io.silv.hsrdmgcalc.ui.AppState
-import io.silv.hsrdmgcalc.ui.SubDestination
+import io.silv.hsrdmgcalc.ui.navigation.SubDestination
 import java.net.URLDecoder
 import java.net.URLEncoder
 import kotlin.text.Charsets.UTF_8

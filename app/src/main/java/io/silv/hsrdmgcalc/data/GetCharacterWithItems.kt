@@ -65,8 +65,7 @@ fun LightCone.toUi(): UiLightCone {
         level = level.toInt(),
         superimpose = superimpose.toInt(),
         location = location,
-        path = Path.Nihility,
-        owned = owned
+        path = Path.Nihility
     )
 }
 

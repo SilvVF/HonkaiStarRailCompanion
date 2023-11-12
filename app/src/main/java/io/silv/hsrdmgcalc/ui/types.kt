@@ -34,7 +34,6 @@ data class UiLightCone(
     val superimpose: Int,
     val location: String?,
     val path: Path,
-    val owned: Boolean
 )
 
 @Stable

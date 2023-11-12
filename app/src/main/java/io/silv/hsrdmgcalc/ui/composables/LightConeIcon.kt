@@ -114,7 +114,7 @@ private fun lightConePainterResource(name: String): Painter {
             "WarmthShortensColdNights" -> R.drawable.light_cone_warmth_shortens_cold_nights
             "WeAreWildfire" -> R.drawable.light_cone_we_are_wildfire
             "WeWillMeetAgain" -> R.drawable.light_cone_we_will_meet_again
-            "Woof" -> R.drawable.light_cone_woof21
+            "Woof!Walk!Time!" -> R.drawable.light_cone_woof21
             "WorrisomeBlissful" -> R.drawable.light_cone_worrisome_blissful
             else -> R.drawable.light_cone_selected
         }

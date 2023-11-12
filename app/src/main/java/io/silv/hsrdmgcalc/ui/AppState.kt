@@ -5,7 +5,9 @@ package io.silv.hsrdmgcalc.ui
 import android.util.Log
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SheetValue
-import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
@@ -23,6 +25,7 @@ import io.silv.hsrdmgcalc.preferences.DisplayPreferences
 import io.silv.hsrdmgcalc.preferences.DisplayPrefs
 import io.silv.hsrdmgcalc.ui.composables.ExpandableState
 import io.silv.hsrdmgcalc.ui.composables.rememberExpandableState
+import io.silv.hsrdmgcalc.ui.navigation.HsrDestination
 import io.silv.hsrdmgcalc.ui.screens.character.navigateToCharacterGraph
 import io.silv.hsrdmgcalc.ui.screens.light_cone.navigateToLightConeGraph
 import kotlinx.coroutines.CoroutineScope
@@ -31,16 +34,19 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.koin.compose.rememberKoinInject
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun rememberAppState(
     navController: NavHostController,
     bottomBarState: ExpandableState = rememberExpandableState(startProgress = SheetValue.Hidden),
     scope: CoroutineScope = rememberCoroutineScope(),
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     windowSizeClass: WindowSizeClass,
 ) = remember {
     AppState(
         navController,
         bottomBarState,
+        snackbarHostState,
         windowSizeClass,
         scope,
     )
@@ -49,7 +55,8 @@ fun rememberAppState(
 class AppState(
     val navController: NavHostController,
     val bottomBarState: ExpandableState,
-    val windowSizeClass: WindowSizeClass,
+    private val snackbarHostState: SnackbarHostState,
+    private val windowSizeClass: WindowSizeClass,
     private val scope: CoroutineScope,
 ) {
     var draggablePeekContent by mutableStateOf<(@Composable () -> Unit)?>(null)
@@ -58,11 +65,26 @@ class AppState(
     var draggableContent by mutableStateOf<(@Composable () -> Unit)?>(null)
         private set
 
-    @OptIn(ExperimentalMaterial3Api::class)
-    var topAppBar by mutableStateOf<Pair<TopAppBarScrollBehavior?, @Composable () -> Unit>>(
-        null to {}
-    )
-
+    fun showSnackbar(
+        message: String,
+        actionLabel: String? = null,
+        withDismissAction: Boolean = false,
+        duration: SnackbarDuration =
+            if (actionLabel == null) SnackbarDuration.Short else SnackbarDuration.Indefinite,
+        onActionPerformed: () -> Unit = {}
+    ) {
+        scope.launch {
+            val result = snackbarHostState.showSnackbar(
+                message = message,
+                actionLabel = actionLabel,
+                withDismissAction = withDismissAction,
+                duration = duration
+            )
+            if (result == SnackbarResult.ActionPerformed) {
+                onActionPerformed()
+            }
+        }
+    }
 
     private val destinationTappedActions =
         mutableStateMapOf<HsrDestination, suspend () -> Unit>()
@@ -89,19 +111,13 @@ class AppState(
             return prefs
         }
 
-    val currentDestination: Flow<HsrDestination>
-        get() = navController.currentBackStackEntryFlow.map { backStackEntry ->
-                destinations.fastFirstOrNull { hsrDest ->
-                    backStackEntry.destination.route == hsrDest.route
-                }
-                    ?: HsrDestination.Character
+    val currentTopLevelDest: Flow<HsrDestination>
+        get() = navController.currentBackStack.map { backStack ->
+            destinations.fastFirstOrNull { dest ->
+                dest.route in backStack.map { it.destination.route }
             }
-
-    fun changeTopAppBar(scrollBehavior: TopAppBarScrollBehavior, topBar: @Composable () -> Unit) {
-        topAppBar = scrollBehavior to topBar
-    }
-
-    fun clearTopAppBar() { topAppBar = null to {} }
+                ?: HsrDestination.Character
+        }
 
     fun changeDraggableBottomBarContent(
         peekContent: @Composable () -> Unit,

@@ -5,7 +5,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import io.silv.hsrdmgcalc.ui.AppState
-import io.silv.hsrdmgcalc.ui.HsrDestination
+import io.silv.hsrdmgcalc.ui.navigation.HsrDestination
 
 @Composable
 fun LaunchedOnSelectedDestinationClick(

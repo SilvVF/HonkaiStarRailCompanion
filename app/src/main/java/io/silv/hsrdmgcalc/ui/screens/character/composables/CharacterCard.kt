@@ -20,6 +20,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -27,10 +28,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import io.silv.hsrdmgcalc.R
@@ -40,6 +41,7 @@ import io.silv.hsrdmgcalc.ui.composables.Path
 import io.silv.hsrdmgcalc.ui.composables.PathIcon
 import io.silv.hsrdmgcalc.ui.composables.Type
 import io.silv.hsrdmgcalc.ui.composables.TypeIcon
+import io.silv.hsrdmgcalc.ui.previews.DevicePreviews
 import io.silv.hsrdmgcalc.ui.theme.HsrDmgCalcTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -275,9 +277,14 @@ fun BackGroundGradient(
     )
 }
 
-@Preview
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+@DevicePreviews
 @Composable
 private fun CharacterCardPreview() {
+
+//    val windowSize = WindowWidthSizeClass.Expanded
+    val maxHeight =  (LocalConfiguration.current.screenHeightDp * 0.3f).dp
+
     HsrDmgCalcTheme {
         LazyVerticalGrid(
             columns = GridCells.Fixed(3),

@@ -5,7 +5,6 @@ import io.silv.hsrdmgcalc.preferences.preferencesModule
 import io.silv.hsrdmgcalc.ui.screens.viewModelModule
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import org.koin.dsl.module
 
 
@@ -26,7 +25,5 @@ val appModule = module {
         }
     }
 
-    single<ApplicationScope> {
-        GlobalScope
-    }
+    single { ApplicationScope() }
 }

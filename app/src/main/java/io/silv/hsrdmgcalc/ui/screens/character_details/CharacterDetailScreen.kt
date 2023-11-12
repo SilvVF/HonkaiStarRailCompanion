@@ -17,10 +17,7 @@ fun CharacterDetails(
     appState: AppState,
     viewModel: CharacterDetailsViewModel = koinViewModel()
 ) {
-    SideEffect {
-        appState.clearDraggableBottomBarContent()
-        appState.clearTopAppBar()
-    }
+    SideEffect { appState.clearDraggableBottomBarContent() }
 
     when (val state = viewModel.characterDetailsState.collectAsStateWithLifecycle().value) {
         CharacterDetailsState.Loading -> Unit

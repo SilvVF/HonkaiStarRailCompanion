@@ -1,4 +1,4 @@
-package io.silv.hsrdmgcalc.ui
+package io.silv.hsrdmgcalc.ui.navigation
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
@@ -30,6 +30,8 @@ sealed class SubDestination(
             return "character_details/$name"
         }
     }
+
+    data object LightConeAdd: SubDestination("light_cone_add")
 }
 
 sealed class HsrDestination(

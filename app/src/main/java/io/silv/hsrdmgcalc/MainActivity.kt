@@ -23,25 +23,26 @@ import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.core.view.WindowCompat
 import androidx.navigation.compose.rememberNavController
-import io.silv.hsrdmgcalc.ui.HsrDestination
-import io.silv.hsrdmgcalc.ui.Navigation
 import io.silv.hsrdmgcalc.ui.composables.BottomBarWithDraggableContent
 import io.silv.hsrdmgcalc.ui.composables.ExpandableInfoLayout
-import io.silv.hsrdmgcalc.ui.conditional
+import io.silv.hsrdmgcalc.ui.navigation.HsrDestination
+import io.silv.hsrdmgcalc.ui.navigation.Navigation
 import io.silv.hsrdmgcalc.ui.rememberAppState
 import io.silv.hsrdmgcalc.ui.theme.HsrDmgCalcTheme
 
@@ -50,7 +51,7 @@ val LocalNavBarHeight = compositionLocalOf<Dp> { error("not provided yet") }
 
 class MainActivity : ComponentActivity() {
 
-    @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3WindowSizeClassApi::class)
+    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -61,27 +62,17 @@ class MainActivity : ComponentActivity() {
             HsrDmgCalcTheme {
 
                 val navBarHeight = 75.dp
+                val snackbarHostState = remember { SnackbarHostState() }
 
                 val appState = rememberAppState(
                     navController = rememberNavController(),
-                    windowSizeClass = calculateWindowSizeClass(activity = this@MainActivity)
+                    windowSizeClass = calculateWindowSizeClass(activity = this@MainActivity),
+                    snackbarHostState = snackbarHostState
                 )
 
                 Scaffold(
-                    contentWindowInsets = ScaffoldDefaults.contentWindowInsets
-                        .exclude(WindowInsets.statusBars),
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .conditional(appState.topAppBar.first != null) {
-                            appState.topAppBar.first?.nestedScrollConnection?.let {
-                                nestedScroll(it)
-                            } ?: this
-                        },
-                    topBar = {
-                        if (appState.shouldShowBottomBar) {
-                            appState.topAppBar.second()
-                        }
-                    },
+                    snackbarHost = { SnackbarHost(snackbarHostState) },
+                    contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(WindowInsets.statusBars),
                     bottomBar = {
                         if (appState.shouldShowBottomBar) {
                             BottomBarWithDraggableContent(
@@ -93,11 +84,11 @@ class MainActivity : ComponentActivity() {
                 ) { paddingValues ->
                     CompositionLocalProvider(
                         LocalPaddingValues provides paddingValues,
-                        LocalNavBarHeight provides navBarHeight
+                        LocalNavBarHeight provides if (appState.shouldShowBottomBar) navBarHeight else 0.dp
                     ) {
                         Row(Modifier.fillMaxSize()) {
                             if(appState.shouldShowNavRail) {
-                                val selectedDest by appState.currentDestination.collectAsState(initial = HsrDestination.Character)
+                                val selectedDest by appState.currentTopLevelDest.collectAsState(initial = HsrDestination.Character)
                                 NavigationRail {
                                     appState.destinations.fastForEach {dest ->
                                         NavigationRailItem(
@@ -112,10 +103,10 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                             Column {
-                                if (appState.shouldShowNavRail) {
-                                    appState.topAppBar.second()
-                                }
-                                Box(contentAlignment = Alignment.BottomCenter) {
+                                Box(
+                                    contentAlignment = Alignment.BottomCenter,
+                                    modifier = Modifier.fillMaxSize()
+                                ) {
                                     Navigation(
                                         appState = appState
                                     )

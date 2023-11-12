@@ -6,7 +6,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import io.silv.hsrdmgcalc.ui.AppState
-import io.silv.hsrdmgcalc.ui.HsrDestination
+import io.silv.hsrdmgcalc.ui.navigation.HsrDestination
 
 const val CharacterGraphRoute = "character_graph"
 

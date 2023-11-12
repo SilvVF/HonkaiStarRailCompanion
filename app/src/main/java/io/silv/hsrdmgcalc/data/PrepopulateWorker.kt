@@ -21,24 +21,24 @@ class PrepopulateWorker(
     private val db by inject<HonkaiDatabase>()
     private val dataPrefs by inject<DataPreferences>()
 
-    private suspend fun prepopulateLightCones() = runCatching {
-        if(dataPrefs.lightConeListVersion() == HonkaiConstants.LightConeListVersion) {
-            Log.d(TAG, "Skipping prepopulate lightcone versions matched version: ${HonkaiConstants.CharacterListVersion}")
-            return@runCatching
-        }
-
-        db.transaction {
-            HonkaiConstants.lightCones.forEach { name ->
-
-                if (db.lightConeQueries.selectByName(name).executeAsList().isEmpty()) {
-                    db.lightConeQueries.prepopulate(null, name)
-                }
-            }
-        }
-
-        dataPrefs.updateLightConeListVersion(HonkaiConstants.LightConeListVersion)
-    }
-        .onFailure { Log.d(TAG, "Failed to prepopulate light cones") }
+//    private suspend fun prepopulateLightCones() = runCatching {
+//        if(dataPrefs.lightConeListVersion() == HonkaiConstants.LightConeListVersion) {
+//            Log.d(TAG, "Skipping prepopulate lightcone versions matched version: ${HonkaiConstants.CharacterListVersion}")
+//            return@runCatching
+//        }
+//
+//        db.transaction {
+//            HonkaiConstants.lightCones.forEach { name ->
+//
+//                if (db.lightConeQueries.selectByName(name).executeAsList().isEmpty()) {
+//                    db.lightConeQueries.prepopulate(null, name)
+//                }
+//            }
+//        }
+//
+//        dataPrefs.updateLightConeListVersion(HonkaiConstants.LightConeListVersion)
+//    }
+//        .onFailure { Log.d(TAG, "Failed to prepopulate light cones") }
 
     private suspend fun prepopulateCharacters() = runCatching {
         if(dataPrefs.characterListVersion() == HonkaiConstants.CharacterListVersion) {
@@ -60,7 +60,7 @@ class PrepopulateWorker(
         return if (
             listOf(
                 prepopulateCharacters(),
-                prepopulateLightCones()
+                //prepopulateLightCones()
             ).all { result ->
                 result.isSuccess
             }

@@ -1,7 +1,5 @@
 package io.silv.hsrdmgcalc.ui.screens.light_cone
 
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -12,29 +10,28 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetValue
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.silv.hsrdmgcalc.LocalNavBarHeight
-import io.silv.hsrdmgcalc.LocalPaddingValues
 import io.silv.hsrdmgcalc.ui.AppState
-import io.silv.hsrdmgcalc.ui.HsrDestination
 import io.silv.hsrdmgcalc.ui.UiLightCone
 import io.silv.hsrdmgcalc.ui.composables.CardType
 import io.silv.hsrdmgcalc.ui.composables.DisplayOptionsBottomSheet
@@ -43,8 +40,9 @@ import io.silv.hsrdmgcalc.ui.composables.LightConeIcon
 import io.silv.hsrdmgcalc.ui.composables.Path
 import io.silv.hsrdmgcalc.ui.composables.SearchTopAppBar
 import io.silv.hsrdmgcalc.ui.composables.UpdateBottomAppBar
-import io.silv.hsrdmgcalc.ui.composables.UpdateTopBar
 import io.silv.hsrdmgcalc.ui.composables.pathFilterRow
+import io.silv.hsrdmgcalc.ui.navigation.HsrDestination
+import io.silv.hsrdmgcalc.ui.navigation.NavResultCallback
 import kotlinx.collections.immutable.ImmutableList
 import org.koin.androidx.compose.koinViewModel
 
@@ -52,10 +50,38 @@ import org.koin.androidx.compose.koinViewModel
 fun LightConeScreen(
     appState: AppState,
     viewModel: LightConeViewModel = koinViewModel(),
+    navigateToAddLightConeForResult: (NavResultCallback<LightConeInfo?>) -> Unit,
     onLightConeClick: (id: String) -> Unit
 ) {
 
     val lightCones by viewModel.lightCones.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is LightConeEvent.LightConeAdded -> {
+                    appState.showSnackbar(
+                        message = "Light cone added ${event.info.first}",
+                        withDismissAction = true,
+                        actionLabel = "undo",
+                        onActionPerformed = {
+                            viewModel.deleteLightCone(event.id)
+                        }
+                    )
+                }
+                is LightConeEvent.LightConeDeleted -> {
+                    appState.showSnackbar(
+                        message = "Light cone deleted ${event.info.first}",
+                        withDismissAction = true,
+                        actionLabel = "undo",
+                        onActionPerformed = {
+                            viewModel.addLightCone(event.info)
+                        }
+                    )
+                }
+            }
+        }
+    }
 
     LightConeScreenContent(
         appState = appState,
@@ -65,6 +91,13 @@ fun LightConeScreen(
         onAnimatePlacementChanged = viewModel::updateAnimateCardPlacement,
         onCardTypeSelected = viewModel::updateCardType,
         onPathFilterSelected = {},
+        onAddLightConeClick = {
+            navigateToAddLightConeForResult { info ->
+                if (info != null) {
+                    viewModel.addLightCone(info)
+                }
+            }
+        }
     )
 }
 
@@ -72,6 +105,7 @@ fun LightConeScreen(
 @Composable
 private fun LightConeScreenContent(
     appState: AppState,
+    onAddLightConeClick: () -> Unit,
     onLightConeClick: (id: String) -> Unit,
     lightCones: ImmutableList<UiLightCone>,
 
@@ -120,29 +154,6 @@ private fun LightConeScreenContent(
         mutableStateOf("")
     }
 
-    UpdateTopBar(appState = appState, scrollBehavior = scrollBehavior) {
-        SearchTopAppBar(
-            onSearchText = { searchText = it },
-            showTextField = searching,
-            actions = {
-                IconButton(
-                    onClick = {
-                        appState.bottomBarState.progress =
-                            if (appState.bottomBarState.progress == SheetValue.Expanded)
-                                SheetValue.Hidden
-                            else
-                                SheetValue.Expanded
-                    }
-                ) {
-                    Icon(imageVector = Icons.Filled.FilterList, null)
-                }
-            },
-            scrollBehavior = scrollBehavior,
-            searchText = searchText,
-            onSearchChanged = { searchState -> searching = searchState }
-        )
-    }
-
     UpdateBottomAppBar(
         appState = appState,
         peekContent = {
@@ -159,20 +170,43 @@ private fun LightConeScreenContent(
     }
 
 
-    val paddingValues = LocalPaddingValues.current
-
-    Surface(
+    Scaffold(
         Modifier
-            .padding(
-                top = paddingValues.calculateTopPadding(),
-                start = paddingValues.calculateStartPadding(LocalLayoutDirection.current),
-                end = paddingValues.calculateEndPadding(LocalLayoutDirection.current),
-                bottom = LocalNavBarHeight.current
-            )
             .fillMaxSize()
-    ) {
+            .padding(bottom = LocalNavBarHeight.current),
+        topBar = {
+            SearchTopAppBar(
+                onSearchText = { searchText = it },
+                showTextField = searching,
+                actions = {
+                    IconButton(
+                        onClick = onAddLightConeClick
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.AddCircleOutline,
+                            null
+                        )
+                    }
+                    IconButton(
+                        onClick = {
+                            appState.bottomBarState.progress =
+                                if (appState.bottomBarState.progress == SheetValue.Expanded)
+                                    SheetValue.Hidden
+                                else
+                                    SheetValue.Expanded
+                        }
+                    ) {
+                        Icon(imageVector = Icons.Filled.FilterList, null)
+                    }
+                },
+                scrollBehavior = scrollBehavior,
+                searchText = searchText,
+                onSearchChanged = { searchState -> searching = searchState }
+            )
+        }
+    ) { paddingValues ->
         if (displayPrefs.cardType == CardType.List) {
-            LazyColumn {
+            LazyColumn(Modifier.padding(paddingValues)) {
                 items(lightCones) {lightCone ->
 
                     LightConeIcon(name = lightCone.name)
@@ -180,7 +214,8 @@ private fun LightConeScreenContent(
             }
         } else {
             LazyVerticalGrid(
-                columns = GridCells.Fixed(displayPrefs.gridCells)
+                columns = GridCells.Fixed(displayPrefs.gridCells),
+                Modifier.padding(paddingValues)
             ) {
                 items(lightCones) {lightCone ->
 

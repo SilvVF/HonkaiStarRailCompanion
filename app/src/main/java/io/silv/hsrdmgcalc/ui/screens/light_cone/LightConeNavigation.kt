@@ -6,7 +6,8 @@ import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import io.silv.hsrdmgcalc.ui.AppState
-import io.silv.hsrdmgcalc.ui.HsrDestination
+import io.silv.hsrdmgcalc.ui.navigation.HsrDestination
+import io.silv.hsrdmgcalc.ui.navigation.NavResultCallback
 
 const val LightConeGraph = "light_cone_graph"
 
@@ -14,9 +15,12 @@ fun NavController.navigateToLightConeGraph(navOptions: NavOptions? = null) {
     this.navigate(LightConeGraph, navOptions)
 }
 
+typealias LightConeInfo = Triple<String,Int, Int>
+
 fun NavGraphBuilder.lightConeGraph(
     appState: AppState,
     onLightConeClick: (id: String) -> Unit,
+    onAddLightConeClick: (NavResultCallback<LightConeInfo?>) -> Unit,
     nestedGraphs: NavGraphBuilder.() -> Unit,
 ) {
     navigation(
@@ -24,7 +28,10 @@ fun NavGraphBuilder.lightConeGraph(
         startDestination = HsrDestination.LightCone.route
     ) {
         composable(HsrDestination.LightCone.route) {
-            LightConeScreen(appState = appState) {
+            LightConeScreen(
+                appState = appState,
+                navigateToAddLightConeForResult = onAddLightConeClick,
+            ) {
                 onLightConeClick(it)
             }
         }
