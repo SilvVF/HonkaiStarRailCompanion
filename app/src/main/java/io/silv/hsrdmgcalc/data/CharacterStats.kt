@@ -15,6 +15,16 @@ object CharacterStats {
         val spd: SPD
     )
 
+    val levelRanges = listOf(
+        1..20,
+        20..40,
+        40..50,
+        50..60,
+        60..70,
+        70..80,
+        80..90
+    )
+
     /**
      * - key = Character name.
      * - value = Ascension to Pair(first = BaseStats at min lvl, second = BaseStats at max lvl).
@@ -123,5 +133,64 @@ object CharacterStats {
 
             "Kafka" to mapOf(),
         )
+    }
+
+
+    fun calcBaseStatsOrNull(name: String, level: Int, maxLevel: Int): BaseStats? {
+        val ascension = levelRanges
+            .indexOfFirst { range -> range.last == maxLevel }
+            .takeIf { it != -1 }
+            ?: return null
+
+        val range = levelRanges[ascension].last - levelRanges[ascension].first
+        val dif = maxLevel - level
+
+        val (min, max) = stats[name]?.get(ascension) ?: return null
+
+        return when(dif) {
+            0 -> max
+            range -> min
+            else -> {
+
+                val hpInc = (max.hp - min.hp) / range
+                val atkInc = (max.atk - min.atk) / range
+                val defInc = (max.def - min.def) / range
+
+                BaseStats(
+                    hp = min.hp + (hpInc * dif),
+                    atk = min.atk + (atkInc * dif),
+                    def = min.def + (defInc * dif),
+                    spd = min.spd
+                )
+            }
+        }
+    }
+
+    fun calcBaseStats(name: String, level: Int, maxLevel: Int): BaseStats {
+        val ascension = levelRanges
+            .indexOfFirst { range -> range.last == maxLevel }
+
+        val range = levelRanges[ascension].last - levelRanges[ascension].first
+        val dif = maxLevel - level
+
+        val (min, max) = stats[name]!![ascension]!!
+
+        return when(dif) {
+            0 -> max
+            range -> min
+            else -> {
+
+                val hpInc = (max.hp - min.hp) / range
+                val atkInc = (max.atk - min.atk) / range
+                val defInc = (max.def - min.def) / range
+
+                BaseStats(
+                    hp = min.hp + (hpInc * dif),
+                    atk = min.atk + (atkInc * dif),
+                    def = min.def + (defInc * dif),
+                    spd = min.spd
+                )
+            }
+        }
     }
 }

@@ -4,12 +4,17 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.EditOff
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -25,12 +30,15 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.silv.hsrdmgcalc.R
+import io.silv.hsrdmgcalc.data.CharacterStats
 import io.silv.hsrdmgcalc.ui.AppState
 import io.silv.hsrdmgcalc.ui.UiCharacter
 import io.silv.hsrdmgcalc.ui.composables.IconButtonRippleColor
@@ -50,7 +58,8 @@ fun CharacterDetails(
         CharacterDetailsState.Loading -> Unit
         is CharacterDetailsState.Success -> CharacterDetailSuccessScreen(
             characterDetailsState = state,
-            updateLevel = viewModel::updateLevel
+            updateLevel = viewModel::updateLevel,
+            updateCharacterOwned = viewModel::updateCharacterOwned
         )
     }
 }
@@ -58,7 +67,8 @@ fun CharacterDetails(
 @Composable
 fun CharacterDetailSuccessScreen(
     characterDetailsState: CharacterDetailsState.Success,
-    updateLevel: (maxLevel: Int, level: Int) -> Unit
+    updateLevel: (maxLevel: Int, level: Int) -> Unit,
+    updateCharacterOwned: (owned: Boolean) -> Unit
 ) {
     val character = characterDetailsState.character
 
@@ -70,7 +80,132 @@ fun CharacterDetailSuccessScreen(
                 .heightIn(LocalConfiguration.current.screenHeightDp.dp)
                 .padding(top = 32.dp)
         ) {
-            CharacterLevelDisplay(character = character, updateLevel = updateLevel)
+            MarkOwnedCheckBox(
+                owned = character.owned,
+                onCheckChanged = updateCharacterOwned,
+                modifier = Modifier.padding(top = 8.dp).fillMaxWidth()
+            )
+            CharacterLevelDisplay(
+                character = character,
+                updateLevel = updateLevel
+            )
+            CharacterBaseStats(baseStats = characterDetailsState.baseStats)
+        }
+    }
+}
+
+@Composable
+fun MarkOwnedCheckBox(
+    owned: Boolean,
+    onCheckChanged: (Boolean) -> Unit,
+    modifier: Modifier
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Start
+    ) {
+        Checkbox(
+            checked = owned,
+            onCheckedChange = onCheckChanged,
+            enabled = true
+        )
+        Spacer(modifier = Modifier.width(6.dp))
+        Text(
+            text = "Character is acquired",
+            style = MaterialTheme.typography.titleSmall
+        )
+    }
+}
+
+
+@Composable
+fun CharacterBaseStats(
+    baseStats: CharacterStats.BaseStats?,
+) {
+    Column(
+        Modifier.padding(horizontal = 18.dp)
+    ) {
+        Text(
+            text = "Base Stats",
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(bottom = 4.dp)
+        )
+        Divider()
+        baseStats?.let {
+            StatsItem(
+                modifier = Modifier.fillMaxWidth(),
+                icon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.icon_hp),
+                        contentDescription = "Health"
+                    )
+                },
+                tag = "HP",
+                statValue = remember(baseStats) { baseStats.hp.toFloat() }
+            )
+            StatsItem(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
+                icon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.icon_atk),
+                        contentDescription = "attack"
+                    )
+                },
+                tag = "ATK",
+                statValue = remember(baseStats) { baseStats.atk.toFloat() }
+            )
+            StatsItem(
+                modifier = Modifier.fillMaxWidth(),
+                icon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.icon_def),
+                        contentDescription = "defense"
+                    )
+                },
+                tag = "DEF",
+                statValue = remember(baseStats) { baseStats.def.toFloat() }
+            )
+        }
+            ?: Text(text = "stat calculation for character not yet implemented")
+    }
+}
+
+@Composable
+fun StatsItem(
+    modifier: Modifier = Modifier,
+    icon: @Composable () -> Unit,
+    tag: String,
+    hintText: String? = null,
+    statValue: Float
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start,
+            modifier = Modifier.weight(1f)
+        ) {
+            icon()
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(text = tag, style = MaterialTheme.typography.labelMedium)
+        }
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.End,
+            modifier = Modifier.weight(1f)
+        ) {
+            Text(text = remember(statValue) { statValue.toString() })
+            Spacer(modifier = Modifier.width(4.dp))
+            Icon(
+                imageVector = Icons.Filled.Info,
+                contentDescription = "calculation info"
+            )
         }
     }
 }
@@ -101,7 +236,7 @@ fun CharacterLevelDisplay(
             Row(
                 Modifier
                     .fillMaxWidth()
-                    .padding(22.dp),
+                    .padding(horizontal = 22.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 LevelSelector(

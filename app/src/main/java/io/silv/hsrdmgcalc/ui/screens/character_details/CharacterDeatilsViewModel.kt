@@ -3,6 +3,7 @@ package io.silv.hsrdmgcalc.ui.screens.character_details
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.silv.hsrdmgcalc.data.CharacterStats
 import io.silv.hsrdmgcalc.data.HonkaiDataRepository
 import io.silv.hsrdmgcalc.data.toUi
 import io.silv.hsrdmgcalc.ui.UiCharacter
@@ -16,12 +17,15 @@ class CharacterDetailsViewModel(
     private val honkaiDataRepository: HonkaiDataRepository
 ): ViewModel() {
 
-    val characterDetailsArgs = CharacterDetailsArgs(savedStateHandle)
-
+    private val characterDetailsArgs = CharacterDetailsArgs(savedStateHandle)
 
     val characterDetailsState = honkaiDataRepository.observeCharacterByName(characterDetailsArgs.name)
-        .map {
-            CharacterDetailsState.Success(it.toUi())
+        .map {character ->
+            val uic = character.toUi()
+            CharacterDetailsState.Success(
+                character = uic,
+                baseStats = CharacterStats.calcBaseStatsOrNull(uic.name, uic.level, uic.maxLevel)
+            )
         }
         .stateIn(
             viewModelScope,
@@ -30,11 +34,8 @@ class CharacterDetailsViewModel(
         )
 
     fun updateLevel(maxLevel: Int, level: Int) {
-
-        val levelRanges = listOf(80..90, 70..80, 60..70, 50..60, 40..50, 20..40, 1..20)
-
         val range = maxLevel.takeIf { max -> max in listOf(20, 40, 50, 60, 70, 80, 90) }
-            ?.let { max -> levelRanges.find { r -> r.last == max } }
+            ?.let { max -> CharacterStats.levelRanges.find { r -> r.last == max } }
             ?: return
 
         if (level !in range)
@@ -49,11 +50,24 @@ class CharacterDetailsViewModel(
             }
         }
     }
+
+    fun updateCharacterOwned(owned: Boolean) {
+        viewModelScope.launch {
+            honkaiDataRepository.updateCharacter(characterDetailsArgs.name) { character ->
+                character?.copy(
+                    owned = owned
+                )
+            }
+        }
+    }
 }
 
 sealed interface CharacterDetailsState {
 
     data object Loading: CharacterDetailsState
 
-    data class Success(val character: UiCharacter): CharacterDetailsState
+    data class Success(
+        val character: UiCharacter,
+        val baseStats: CharacterStats.BaseStats?
+    ): CharacterDetailsState
 }

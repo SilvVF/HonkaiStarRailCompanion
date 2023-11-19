@@ -99,16 +99,26 @@ fun CollapsingToolbarLayout(
             Spacer(Modifier.height(headerHeight))
             body()
         }
+
+        val toolbarBottom by remember {
+            mutableFloatStateOf(headerHeightPx - toolbarHeightPx)
+        }
+
+        val showToolbar by remember {
+            derivedStateOf {
+                scroll.value >= toolbarBottom
+            }
+        }
+
         Toolbar(
-            scroll = scroll,
-            headerHeightPx = headerHeightPx,
-            toolbarHeightPx = toolbarHeightPx,
             character = character,
+            showToolbar = showToolbar
         )
         Title(
             scroll = scroll,
             text = formatText(text = character.name),
-            modifier = Modifier.statusBarsPadding()
+            modifier = Modifier.statusBarsPadding(),
+            showFullText = !showToolbar
         )
     }
 }
@@ -116,22 +126,9 @@ fun CollapsingToolbarLayout(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun Toolbar(
-    scroll: ScrollState,
     character: UiCharacter,
-    headerHeightPx: Float,
-    toolbarHeightPx: Float
+    showToolbar: Boolean,
 ) {
-
-    val toolbarBottom by remember {
-        mutableFloatStateOf(headerHeightPx - toolbarHeightPx)
-    }
-
-    val showToolbar by remember {
-        derivedStateOf {
-            scroll.value >= toolbarBottom
-        }
-    }
-
     AnimatedVisibility(
         visible = showToolbar,
         enter = fadeIn(animationSpec = tween(300)),
@@ -186,15 +183,15 @@ private fun Title(
     text: String,
     scroll: ScrollState,
     modifier: Modifier = Modifier,
+    showFullText: Boolean
 ) {
     var titleHeightPx by remember { mutableFloatStateOf(0f) }
     var titleWidthPx by remember { mutableFloatStateOf(0f) }
 
-
     Text(
         text = formatText(text = text),
         fontSize = 32.sp,
-        maxLines = 2,
+        maxLines = if(showFullText) 4 else 2,
         lineHeight = 32.sp,
         overflow = TextOverflow.Ellipsis,
         fontWeight = FontWeight.Bold,

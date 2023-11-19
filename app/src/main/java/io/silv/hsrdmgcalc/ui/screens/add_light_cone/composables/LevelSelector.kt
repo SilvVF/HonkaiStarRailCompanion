@@ -25,21 +25,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import io.silv.hsrdmgcalc.data.CharacterStats
 
 class LevelSelectorState(
     initialFirstMax: Boolean = true,
     initialLevel: Int = 1,
     initialLvlText: String = ""
 ) {
-    private val levelRanges = listOf(
-        80..90,
-        70..80,
-        60..70,
-        50..60,
-        40..50,
-        20..40,
-        1..20
-    )
+    private val levelRanges = CharacterStats.levelRanges
 
     var level by mutableIntStateOf(initialLevel)
         private set
@@ -112,15 +105,7 @@ fun rememberLevelSelectorState(
     )
 ) {
     LevelSelectorState(
-        initialFirstMax = listOf(
-            80..90,
-            70..80,
-            60..70,
-            50..60,
-            40..50,
-            20..40,
-            1..20
-        )
+        initialFirstMax = CharacterStats.levelRanges
             .filter { initialLevel in it }
             .takeIf { it.size > 1 }
             ?.let { it.first().last == initialMaxLevel }
