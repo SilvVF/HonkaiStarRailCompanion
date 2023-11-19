@@ -8,18 +8,24 @@ import io.silv.hsrdmgcalc.data.toUi
 import io.silv.hsrdmgcalc.preferences.DisplayPreferences
 import io.silv.hsrdmgcalc.ui.UiLightCone
 import io.silv.hsrdmgcalc.ui.composables.CardType
+import io.silv.hsrdmgcalc.ui.composables.Path
+import io.silv.hsrdmgcalc.ui.screens.add_light_cone.LightConeInfo
 import io.silv.hsrdmgcalc.ui.screens.light_cone.LightConeEvent.LightConeAdded
 import io.silv.hsrdmgcalc.ui.screens.light_cone.LightConeEvent.LightConeDeleted
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class LightConeViewModel(
@@ -31,11 +37,16 @@ class LightConeViewModel(
     private val mutableEvents = Channel<LightConeEvent>()
     val events = mutableEvents.receiveAsFlow()
 
+    private val mutablePathFilter = MutableStateFlow<Path?>(null)
+    val pathFilter = mutablePathFilter.asStateFlow()
+
     val lightCones: StateFlow<ImmutableList<UiLightCone>> = honkaiDataRepository.observeAllLightCones()
+        .combine(mutablePathFilter) { lightCones, pathFilter -> lightCones to pathFilter }
         .catch { it.printStackTrace() }
-        .map { lightCones ->
+        .map { (lightCones, pathFilter) ->
             lightCones
                 .map { lightCone -> lightCone.toUi() }
+                .filter { lightCone -> pathFilter == null || lightCone.path == pathFilter }
                 .toImmutableList()
         }
         .stateIn(
@@ -44,11 +55,22 @@ class LightConeViewModel(
             persistentListOf()
         )
 
+    fun updatePathFilter(path: Path?) {
+        viewModelScope.launch {
+            mutablePathFilter.update { prev ->
+                if (path == prev)
+                    null
+                else
+                    path
+            }
+        }
+    }
+
     fun updateGridCellCount(count: Int) {
         applicationScope.launch {
             displayPreferences.updatePrefs { prev ->
                 prev.copy(
-                    characterPrefs = prev.lightConePrefs.copy(
+                    lightConePrefs = prev.lightConePrefs.copy(
                         gridCells = count
                     )
                 )
@@ -60,7 +82,7 @@ class LightConeViewModel(
         applicationScope.launch {
             displayPreferences.updatePrefs { prev ->
                 prev.copy(
-                    characterPrefs = prev.lightConePrefs.copy(
+                    lightConePrefs = prev.lightConePrefs.copy(
                         cardType = cardType
                     )
                 )
@@ -72,7 +94,7 @@ class LightConeViewModel(
         applicationScope.launch {
             displayPreferences.updatePrefs { prev ->
                 prev.copy(
-                    characterPrefs = prev.lightConePrefs.copy(
+                    lightConePrefs = prev.lightConePrefs.copy(
                         animateCardPlacement = animate
                     )
                 )
@@ -83,9 +105,10 @@ class LightConeViewModel(
     fun addLightCone(info: LightConeInfo) {
         viewModelScope.launch {
             val id = honkaiDataRepository.addLightCone(
-                name = info.first,
-                level = info.second,
-                superimpose = info.third
+                name = info.key,
+                level = info.level,
+                superimpose = info.superimpose,
+                maxLevel = info.maxLevel
             )
             mutableEvents.send(
                 LightConeAdded(id, info)
@@ -99,7 +122,12 @@ class LightConeViewModel(
                 mutableEvents.send(
                     LightConeDeleted(
                         id,
-                        Triple(deleted.name, deleted.level.toInt(), deleted.superimpose.toInt())
+                        LightConeInfo(
+                            deleted.name,
+                            deleted.superimpose.toInt(),
+                            deleted.level.toInt(),
+                            deleted.maxLevel.toInt()
+                        )
                     )
                 )
             }

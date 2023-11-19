@@ -9,10 +9,11 @@ import io.silv.hsrdmgcalc.ui.UiCharacter
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 class CharacterDetailsViewModel(
     savedStateHandle: SavedStateHandle,
-    honkaiDataRepository: HonkaiDataRepository
+    private val honkaiDataRepository: HonkaiDataRepository
 ): ViewModel() {
 
     val characterDetailsArgs = CharacterDetailsArgs(savedStateHandle)
@@ -28,7 +29,26 @@ class CharacterDetailsViewModel(
             CharacterDetailsState.Loading
         )
 
+    fun updateLevel(maxLevel: Int, level: Int) {
 
+        val levelRanges = listOf(80..90, 70..80, 60..70, 50..60, 40..50, 20..40, 1..20)
+
+        val range = maxLevel.takeIf { max -> max in listOf(20, 40, 50, 60, 70, 80, 90) }
+            ?.let { max -> levelRanges.find { r -> r.last == max } }
+            ?: return
+
+        if (level !in range)
+            return
+
+        viewModelScope.launch {
+            honkaiDataRepository.updateCharacter(characterDetailsArgs.name) { character ->
+                character?.copy(
+                    maxLevel = maxLevel.toLong(),
+                    level = level.toLong()
+                )
+            }
+        }
+    }
 }
 
 sealed interface CharacterDetailsState {

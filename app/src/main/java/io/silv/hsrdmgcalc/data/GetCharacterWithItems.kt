@@ -45,6 +45,7 @@ fun Character.toUi(): UiCharacter {
         name = name,
         owned = owned,
         level = level.toInt(),
+        maxLevel = maxLevel.toInt(),
         traceSkill = trace_skill.toInt(),
         traceBasicAtk = trace_basic_atk.toInt(),
         traceUltimate = trace_ultimate.toInt(),

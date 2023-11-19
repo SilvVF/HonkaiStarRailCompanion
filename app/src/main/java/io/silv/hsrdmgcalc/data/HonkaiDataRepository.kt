@@ -16,6 +16,17 @@ class HonkaiDataRepository(
     private val database: HonkaiDatabase,
     private val dispatchers: AppDispatchers,
 ) {
+    suspend fun updateCharacter(
+        name: String,
+        updated: (prev: Character?) -> Character?
+    ) = withContext(dispatchers.io) {
+        val prev = database.characterQueries.selectByName(name).executeAsOneOrNull()
+
+        updated(prev)?.let { updated ->
+            database.characterQueries.upsert(updated)
+        }
+    }
+
     suspend fun removeLightCone(id: Long): LightCone? = withContext(dispatchers.io) {
         val deleted = database.lightConeQueries.selectById(id).executeAsOneOrNull()
         database.lightConeQueries.deleteById(id)
@@ -26,6 +37,7 @@ class HonkaiDataRepository(
     suspend fun addLightCone(
         name: String,
         level: Int,
+        maxLevel: Int,
         superimpose: Int,
     ): Long = withContext(dispatchers.io) {
         database.lightConeQueries.insert(
@@ -33,6 +45,7 @@ class HonkaiDataRepository(
             name = name,
             level = level.toLong(),
             superimpose = superimpose.toLong(),
+            maxLevel = maxLevel.toLong(),
             location = null
         )
 

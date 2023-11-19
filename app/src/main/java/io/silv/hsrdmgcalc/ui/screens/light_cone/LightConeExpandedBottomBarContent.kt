@@ -26,7 +26,8 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun LightConeExpandedBottomBarContent(
-    showDisplayOptions: () -> Unit
+    showDisplayOptions: () -> Unit,
+    showGroupingOptions: () -> Unit,
 ) {
     Column(
         Modifier
@@ -39,18 +40,19 @@ fun LightConeExpandedBottomBarContent(
         Row(
             Modifier
                 .fillMaxWidth()
+                .clickable { showGroupingOptions() }
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 imageVector = Icons.Outlined.More,
-                contentDescription = "Group characters by...",
+                contentDescription = null,
                 modifier = Modifier
                     .size(20.dp)
                     .rotate(180f)
             )
             Spacer(modifier = Modifier.width(12.dp))
-            Text(text = "Group characters by...")
+            Text(text = "Group light cones by...")
         }
         Row(
             Modifier

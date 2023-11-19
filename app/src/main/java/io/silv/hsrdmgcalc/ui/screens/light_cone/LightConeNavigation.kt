@@ -8,14 +8,13 @@ import androidx.navigation.navigation
 import io.silv.hsrdmgcalc.ui.AppState
 import io.silv.hsrdmgcalc.ui.navigation.HsrDestination
 import io.silv.hsrdmgcalc.ui.navigation.NavResultCallback
+import io.silv.hsrdmgcalc.ui.screens.add_light_cone.LightConeInfo
 
 const val LightConeGraph = "light_cone_graph"
 
 fun NavController.navigateToLightConeGraph(navOptions: NavOptions? = null) {
     this.navigate(LightConeGraph, navOptions)
 }
-
-typealias LightConeInfo = Triple<String,Int, Int>
 
 fun NavGraphBuilder.lightConeGraph(
     appState: AppState,

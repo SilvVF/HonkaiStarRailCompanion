@@ -1,5 +1,6 @@
 package io.silv.hsrdmgcalc.ui.screens.light_cone
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -18,6 +19,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetValue
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
@@ -43,6 +45,7 @@ import io.silv.hsrdmgcalc.ui.composables.UpdateBottomAppBar
 import io.silv.hsrdmgcalc.ui.composables.pathFilterRow
 import io.silv.hsrdmgcalc.ui.navigation.HsrDestination
 import io.silv.hsrdmgcalc.ui.navigation.NavResultCallback
+import io.silv.hsrdmgcalc.ui.screens.add_light_cone.LightConeInfo
 import kotlinx.collections.immutable.ImmutableList
 import org.koin.androidx.compose.koinViewModel
 
@@ -55,15 +58,16 @@ fun LightConeScreen(
 ) {
 
     val lightCones by viewModel.lightCones.collectAsStateWithLifecycle()
+    val pathFilter by viewModel.pathFilter.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
             when (event) {
                 is LightConeEvent.LightConeAdded -> {
                     appState.showSnackbar(
-                        message = "Light cone added ${event.info.first}",
-                        withDismissAction = true,
+                        message = "Light cone added ${event.info.key}",
                         actionLabel = "undo",
+                        duration = SnackbarDuration.Short,
                         onActionPerformed = {
                             viewModel.deleteLightCone(event.id)
                         }
@@ -71,9 +75,9 @@ fun LightConeScreen(
                 }
                 is LightConeEvent.LightConeDeleted -> {
                     appState.showSnackbar(
-                        message = "Light cone deleted ${event.info.first}",
-                        withDismissAction = true,
+                        message = "Light cone deleted ${event.info.key}",
                         actionLabel = "undo",
+                        duration = SnackbarDuration.Short,
                         onActionPerformed = {
                             viewModel.addLightCone(event.info)
                         }
@@ -90,14 +94,15 @@ fun LightConeScreen(
         onGridSizeSelected = viewModel::updateGridCellCount,
         onAnimatePlacementChanged = viewModel::updateAnimateCardPlacement,
         onCardTypeSelected = viewModel::updateCardType,
-        onPathFilterSelected = {},
+        onPathFilterSelected = viewModel::updatePathFilter,
         onAddLightConeClick = {
             navigateToAddLightConeForResult { info ->
                 if (info != null) {
                     viewModel.addLightCone(info)
                 }
             }
-        }
+        },
+        pathFilter = pathFilter
     )
 }
 
@@ -113,7 +118,8 @@ private fun LightConeScreenContent(
     onAnimatePlacementChanged: (Boolean) -> Unit,
     onCardTypeSelected: (CardType) -> Unit,
 
-    onPathFilterSelected: (Path?) -> Unit
+    onPathFilterSelected: (Path?) -> Unit,
+    pathFilter: Path?
 ) {
     val displayPrefs = appState.displayPrefs.lightConePrefs
 
@@ -158,15 +164,16 @@ private fun LightConeScreenContent(
         appState = appState,
         peekContent = {
             LazyRow(Modifier.padding(vertical = 12.dp)) {
-                pathFilterRow { path ->
+                pathFilterRow(startSelected = pathFilter) { path ->
                     onPathFilterSelected(path)
                 }
             }
         }
     ) {
-        LightConeExpandedBottomBarContent {
-            displayOptionsVisible = true
-        }
+        LightConeExpandedBottomBarContent(
+            showGroupingOptions = {  },
+            showDisplayOptions = { displayOptionsVisible = true }
+        )
     }
 
 
@@ -208,8 +215,10 @@ private fun LightConeScreenContent(
         if (displayPrefs.cardType == CardType.List) {
             LazyColumn(Modifier.padding(paddingValues)) {
                 items(lightCones) {lightCone ->
-
-                    LightConeIcon(name = lightCone.name)
+                    Column {
+                        LightConeIcon(name = lightCone.name)
+                        Text(text = lightCone.name)
+                    }
                 }
             }
         } else {
@@ -218,8 +227,10 @@ private fun LightConeScreenContent(
                 Modifier.padding(paddingValues)
             ) {
                 items(lightCones) {lightCone ->
-
-                    LightConeIcon(name = lightCone.name, Modifier.size(200.dp))
+                    Column {
+                        LightConeIcon(name = lightCone.name, Modifier.size(200.dp))
+                        Text(text = lightCone.name)
+                    }
                 }
             }
         }
