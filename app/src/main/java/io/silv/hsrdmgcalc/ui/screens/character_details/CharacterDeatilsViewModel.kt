@@ -4,9 +4,12 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.silv.hsrdmgcalc.data.CharacterStats
+import io.silv.hsrdmgcalc.data.GetCharacterWithItems
 import io.silv.hsrdmgcalc.data.HonkaiDataRepository
-import io.silv.hsrdmgcalc.data.toUi
 import io.silv.hsrdmgcalc.ui.UiCharacter
+import io.silv.hsrdmgcalc.ui.UiLightCone
+import io.silv.hsrdmgcalc.ui.UiRelic
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -14,17 +17,27 @@ import kotlinx.coroutines.launch
 
 class CharacterDetailsViewModel(
     savedStateHandle: SavedStateHandle,
-    private val honkaiDataRepository: HonkaiDataRepository
+    private val honkaiDataRepository: HonkaiDataRepository,
+    private val getCharacterWithItems: GetCharacterWithItems
 ): ViewModel() {
 
     private val characterDetailsArgs = CharacterDetailsArgs(savedStateHandle)
 
-    val characterDetailsState = honkaiDataRepository.observeCharacterByName(characterDetailsArgs.name)
-        .map {character ->
-            val uic = character.toUi()
+    val characterDetailsState = getCharacterWithItems.invoke(characterDetailsArgs.name)
+        .map { characterWithItems ->
+            val uic = characterWithItems.character
+            val cBaseStats = CharacterStats.calcBaseStatsOrNull(uic.name, uic.level, uic.maxLevel)
             CharacterDetailsState.Success(
                 character = uic,
-                baseStats = CharacterStats.calcBaseStatsOrNull(uic.name, uic.level, uic.maxLevel)
+                baseStats = cBaseStats,
+                relics = characterWithItems.relics,
+                lightCone = characterWithItems.lightCone,
+                baseStatsWithRelics = cBaseStats?.let {
+                    CharacterStats.calcBaseStatsWithRelics(
+                        baseStats = it,
+                        addStats = characterWithItems.relics.flatMap { relic -> relic.stats }
+                    )
+                }
             )
         }
         .stateIn(
@@ -68,6 +81,9 @@ sealed interface CharacterDetailsState {
 
     data class Success(
         val character: UiCharacter,
-        val baseStats: CharacterStats.BaseStats?
+        val relics: ImmutableList<UiRelic>,
+        val lightCone: UiLightCone?,
+        val baseStats: CharacterStats.BaseStats?,
+        val baseStatsWithRelics: CharacterStats.CalcInfo?,
     ): CharacterDetailsState
 }

@@ -12,6 +12,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -23,6 +25,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import io.silv.hsrdmgcalc.data.CharacterStats
@@ -118,7 +121,9 @@ fun rememberLevelSelectorState(
 @Composable
 fun LevelSelector(
     modifier: Modifier = Modifier,
-    state: LevelSelectorState
+    state: LevelSelectorState,
+    levelTextFieldColors: TextFieldColors = TextFieldDefaults.colors(),
+    maxLevelTextFieldColor: Color = MaterialTheme.colorScheme.primary
 ) {
     Row(modifier) {
         OutlinedTextField(
@@ -130,6 +135,7 @@ fun LevelSelector(
             onValueChange = { text ->
                 state.changeLevel(text)
             },
+            colors = levelTextFieldColors,
             modifier = Modifier.weight(0.6f)
         )
         Spacer(modifier = Modifier.width(12.dp))
@@ -139,11 +145,14 @@ fun LevelSelector(
                 .fillMaxHeight(),
             contentAlignment = Alignment.Center
         ) {
-            val enabledColor = MaterialTheme.colorScheme.primary
             val disabledColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+
             val textFieldColor = remember(state.hasOtherMax) {
-                if (state.hasOtherMax) { enabledColor }
-                else { disabledColor }
+                if (state.hasOtherMax) {
+                    maxLevelTextFieldColor
+                } else {
+                    disabledColor
+                }
             }
             OutlinedTextField(
                 readOnly = true,
@@ -154,11 +163,11 @@ fun LevelSelector(
                     .clickable { state.toggleMax() },
                 onValueChange = {},
                 colors = OutlinedTextFieldDefaults.colors(
-                    disabledBorderColor =textFieldColor,
+                    disabledBorderColor = textFieldColor,
                     disabledTextColor = textFieldColor,
                     disabledLabelColor = textFieldColor
                 ),
-                label = { Text(text = "max level") }
+                label = { Text(text = "max level") },
             )
         }
     }

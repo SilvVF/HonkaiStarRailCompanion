@@ -3,7 +3,7 @@ package io.silv.hsrdmgcalc.ui.screens.character
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.silv.hsrdmgcalc.ApplicationScope
-import io.silv.hsrdmgcalc.data.GetCharacterWithItems
+import io.silv.hsrdmgcalc.data.GetCharactersWithItems
 import io.silv.hsrdmgcalc.preferences.DisplayPreferences
 import io.silv.hsrdmgcalc.preferences.Grouping
 import io.silv.hsrdmgcalc.ui.composables.CardType
@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
 class CharacterViewModel(
     private val applicationScope: ApplicationScope,
     private val displayPreferences: DisplayPreferences,
-    getCharacterWithItems: GetCharacterWithItems,
+    getCharacterWithItems: GetCharactersWithItems,
 ): ViewModel() {
 
     private val typeFilter = MutableStateFlow<Type?>(null)

@@ -30,3 +30,6 @@ SELECT * FROM LightCone WHERE id = ?;
 
 selectByName:
 SELECT * FROM LightCone WHERE name = ?;
+
+selectByEquippedCharacter:
+SELECT * FROM LightCone WHERE location = ?;

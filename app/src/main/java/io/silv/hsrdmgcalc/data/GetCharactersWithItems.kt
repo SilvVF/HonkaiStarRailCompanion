@@ -14,7 +14,7 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.combine
 
-class GetCharacterWithItems(
+class GetCharactersWithItems(
     private val dataRepository: HonkaiDataRepository
 ) {
 
@@ -39,6 +39,25 @@ class GetCharacterWithItems(
     }
 }
 
+class GetCharacterWithItems(
+    private val dataRepository: HonkaiDataRepository
+) {
+
+    fun invoke(name: String) = combine(
+        dataRepository.observeCharacterByName(name),
+        dataRepository.observeLightConeForCharacter(name),
+        dataRepository.observeRelicsForCharacter(name)
+    ) { character, lightCone, relics ->
+
+        CharacterWithItems(
+            character = character.toUi(),
+            lightCone = lightCone?.toUi(),
+            relics = relics
+                .map { relic -> relic.toUi() }
+                .toImmutableList()
+        )
+    }
+}
 
 fun Character.toUi(): UiCharacter {
     return UiCharacter(
@@ -55,7 +74,6 @@ fun Character.toUi(): UiCharacter {
         type = HonkaiConstants.characterType(name),
         path = HonkaiConstants.characterPath(name),
         is5star = HonkaiConstants.is5Star(name),
-        ascension = ascension.toInt()
     )
 }
 

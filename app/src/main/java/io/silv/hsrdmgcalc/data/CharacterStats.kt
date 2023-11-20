@@ -1,5 +1,8 @@
 package io.silv.hsrdmgcalc.data
 
+import io.silv.hsrdmgcalc.sumOf
+import kotlin.math.roundToInt
+
 typealias HP = Int
 typealias ATK = Int
 typealias DEF = Int
@@ -131,7 +134,120 @@ object CharacterStats {
                 6 to Pair(BaseStats(1338, 632, 452, 96), BaseStats(1435, 679, 485, 96))
             ),
 
-            "Kafka" to mapOf(),
+            "Kafka" to mapOf(
+                0 to Pair(BaseStats(147, 92, 66, 100), BaseStats(288, 180, 128, 100)),
+                1 to Pair(BaseStats(347, 217, 155, 100), BaseStats(421, 263, 188, 100)),
+                2 to Pair(BaseStats(480, 300, 214, 100), BaseStats(554, 346, 247, 100)),
+                3 to Pair(BaseStats(613, 383, 273, 100), BaseStats(687, 429, 306, 100)),
+                4 to Pair(BaseStats(746, 466, 333, 100), BaseStats(820, 512, 366, 100)),
+                5 to Pair(BaseStats(879, 549, 392, 100), BaseStats(953, 595, 425, 100)),
+                6 to Pair(BaseStats(1012, 632, 452, 100), BaseStats(1086, 679, 485, 100))
+            ),
+
+            "Luocha" to mapOf(
+                0 to Pair(BaseStats(174, 102, 49, 101), BaseStats(339, 200, 96, 101)),
+                1 to Pair(BaseStats(409, 241, 116, 101), BaseStats(496, 293, 141, 101)),
+                2 to Pair(BaseStats(566, 334, 160, 101), BaseStats(653, 386, 185, 101)),
+                3 to Pair(BaseStats(723, 427, 205, 101), BaseStats(810, 478, 230, 101)),
+                4 to Pair(BaseStats(879, 519, 249, 101), BaseStats(967, 571, 274, 101)),
+                5 to Pair(BaseStats(1036, 612, 294, 101), BaseStats(1123, 664, 319, 101)),
+                6 to Pair(BaseStats(1193, 705, 339, 101), BaseStats(1280, 756, 363, 101))
+            ),
+
+            "Seele" to mapOf(
+                0 to Pair(BaseStats(126, 87, 49, 115), BaseStats(247, 169, 96, 115)),
+                1 to Pair(BaseStats(297, 204, 116, 115), BaseStats(361, 248, 141, 115)),
+                2 to Pair(BaseStats(411, 283, 160, 115), BaseStats(475, 326, 185, 115)),
+                3 to Pair(BaseStats(525, 361, 205, 115), BaseStats(589, 405, 230, 115)),
+                4 to Pair(BaseStats(639, 439, 249, 115), BaseStats(703, 483, 274, 115)),
+                5 to Pair(BaseStats(753, 518, 294, 115), BaseStats(817, 561, 319, 115)),
+                6 to Pair(BaseStats(868, 596, 339, 115), BaseStats(931, 640, 363, 115))
+            ),
+            "SilverWolf" to mapOf(
+                0 to Pair(BaseStats(142, 87, 62, 107), BaseStats(277, 169, 122, 107)),
+                1 to Pair(BaseStats(335, 204, 147, 107), BaseStats(406, 248, 178, 107)),
+                2 to Pair(BaseStats(463, 283, 203, 107), BaseStats(534, 326, 235, 107)),
+                3 to Pair(BaseStats(591, 361, 260, 107), BaseStats(662, 405, 291, 107)),
+                4 to Pair(BaseStats(719, 439, 316, 107), BaseStats(791, 483, 347, 107)),
+                5 to Pair(BaseStats(848, 518, 373, 107), BaseStats(919, 561, 404, 107)),
+                6 to Pair(BaseStats(976, 596, 429, 107), BaseStats(1047, 640, 460, 107))
+            ),
+
+            "TrailblazerFire" to mapOf(
+                0 to Pair(BaseStats(163, 84, 62, 100), BaseStats(319, 164, 122, 100)),
+                1 to Pair(BaseStats(384, 198, 147, 100), BaseStats(466, 240, 178, 100)),
+                2 to Pair(BaseStats(531, 274, 203, 100), BaseStats(613, 316, 235, 100)),
+                3 to Pair(BaseStats(679, 350, 260, 100), BaseStats(761, 392, 291, 100)),
+                4 to Pair(BaseStats(826, 426, 316, 100), BaseStats(908, 468, 347, 100)),
+                5 to Pair(BaseStats(973, 502, 373, 100), BaseStats(1055, 544, 404, 100)),
+                6 to Pair(BaseStats(1121, 578, 429, 100), BaseStats(1203, 620, 460, 100))
+            ),
+            "TrailblazerPhysical" to mapOf(
+                0 to Pair(BaseStats(163, 84, 62, 100), BaseStats(319, 164, 122, 100)),
+                1 to Pair(BaseStats(384, 198, 147, 100), BaseStats(466, 240, 178, 100)),
+                2 to Pair(BaseStats(531, 274, 203, 100), BaseStats(613, 316, 235, 100)),
+                3 to Pair(BaseStats(679, 350, 260, 100), BaseStats(761, 392, 291, 100)),
+                4 to Pair(BaseStats(826, 426, 316, 100), BaseStats(908, 468, 347, 100)),
+                5 to Pair(BaseStats(973, 502, 373, 100), BaseStats(1055, 544, 404, 100)),
+                6 to Pair(BaseStats(1121, 578, 429, 100), BaseStats(1203, 620, 460, 100))
+            ),
+
+            "Welt" to mapOf(
+                0 to Pair(BaseStats(153, 84, 69, 102), BaseStats(298, 164, 135, 102)),
+                1 to Pair(BaseStats(359, 198, 162, 102), BaseStats(436, 240, 197, 102)),
+                2 to Pair(BaseStats(497, 274, 225, 102), BaseStats(574, 316, 259, 102)),
+                3 to Pair(BaseStats(635, 350, 287, 102), BaseStats(712, 392, 322, 102)),
+                4 to Pair(BaseStats(773, 426, 349, 102), BaseStats(849, 468, 384, 102)),
+                5 to Pair(BaseStats(911, 502, 412, 102), BaseStats(987, 544, 446, 102)),
+                6 to Pair(BaseStats(1048, 578, 474, 102), BaseStats(1125, 620, 509, 102))
+            ),
+        )
+    }
+
+    data class CalcInfo(
+        val stats: BaseStats,
+        val hp: Values,
+        val atk: Values,
+        val def: Values,
+        val spd: Values
+    ) {
+        data class Values(
+            val pct: Float,
+            val additive: Int,
+        )
+    }
+
+    fun calcBaseStatsWithRelics(
+        baseStats: BaseStats,
+        addStats: List<Pair<String, Float>>
+    ): CalcInfo {
+
+        val hpPctBonus = addStats.sumOf { if (it.first == "hpPct") it.second else 0f }
+        val additiveHpBonus = addStats.sumOf { if (it.first == "hp") it.second else 0f }.roundToInt()
+
+        val totalHp = baseStats.hp * (1 + hpPctBonus) + additiveHpBonus
+
+        val atkPctBonus = addStats.sumOf { if(it.first == "atkPct") it.second else 0f }
+        val additiveAtkBonus = addStats.sumOf { if(it.first == "atk") it.second else 0f }.roundToInt()
+
+        val totalAtk = baseStats.atk * (1 + atkPctBonus) + additiveAtkBonus
+
+        val defPctBonus = addStats.sumOf { if(it.first == "defPct") it.second else 0f }
+        val additiveDefBonus = addStats.sumOf { if(it.first == "def") it.second else 0f }.roundToInt()
+
+        val totalDef = baseStats.def * (1 + defPctBonus) + additiveDefBonus
+
+        val spdPctBonus = addStats.sumOf { if(it.first == "spdPct") it.second else 0f }
+        val additiveSpdBonus = addStats.sumOf { if(it.first == "spd") it.second else 0f }.roundToInt()
+
+        val totalSpd = baseStats.spd * (1 + spdPctBonus) + additiveSpdBonus
+
+        return CalcInfo(
+            stats = BaseStats(totalHp.roundToInt(), totalAtk.roundToInt(), totalDef.roundToInt(), totalSpd.roundToInt()),
+            atk = CalcInfo.Values(atkPctBonus, additiveAtkBonus),
+            def = CalcInfo.Values(defPctBonus, additiveDefBonus),
+            hp = CalcInfo.Values(hpPctBonus, additiveHpBonus),
+            spd = CalcInfo.Values(spdPctBonus, additiveSpdBonus)
         )
     }
 

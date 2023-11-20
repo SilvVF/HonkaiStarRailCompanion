@@ -18,4 +18,6 @@ INSERT OR REPLACE INTO Relic VALUES ?;
 selectAll:
 SELECT * FROM Relic;
 
+selectByEquipedCharacter:
+SELECT * FROM Relic WHERE location = ?;
 

@@ -2,6 +2,7 @@ package io.silv.hsrdmgcalc.ui
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
+import io.silv.hsrdmgcalc.data.CharacterStats
 import io.silv.hsrdmgcalc.ui.composables.Path
 import io.silv.hsrdmgcalc.ui.composables.Type
 
@@ -14,7 +15,6 @@ data class UiCharacter(
     val owned: Boolean,
     val level: Int,
     val maxLevel: Int,
-    val ascension: Int,
     val traceSkill: Int,
     val traceBasicAtk: Int,
     val traceUltimate: Int,
@@ -24,7 +24,16 @@ data class UiCharacter(
     val type: Type,
     val path: Path,
     val is5star: Boolean,
-)
+) {
+
+    val ascension: Int
+        get() {
+            return CharacterStats.levelRanges
+                .indexOfFirst { range -> range.last == maxLevel }
+                .takeIf { it != -1 }
+                ?: 0
+        }
+}
 
 @Stable
 @Immutable
