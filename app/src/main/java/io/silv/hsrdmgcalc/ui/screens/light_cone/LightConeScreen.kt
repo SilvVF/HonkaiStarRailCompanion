@@ -33,13 +33,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.silv.hsrdmgcalc.LocalNavBarHeight
+import io.silv.hsrdmgcalc.preferences.DisplayPrefs
 import io.silv.hsrdmgcalc.ui.AppState
 import io.silv.hsrdmgcalc.ui.UiLightCone
 import io.silv.hsrdmgcalc.ui.composables.CardType
 import io.silv.hsrdmgcalc.ui.composables.DisplayOptionsBottomSheet
 import io.silv.hsrdmgcalc.ui.composables.LaunchedOnSelectedDestinationClick
 import io.silv.hsrdmgcalc.ui.composables.LightConeIcon
-import io.silv.hsrdmgcalc.ui.composables.Path
 import io.silv.hsrdmgcalc.ui.composables.SearchTopAppBar
 import io.silv.hsrdmgcalc.ui.composables.UpdateBottomAppBar
 import io.silv.hsrdmgcalc.ui.composables.pathFilterRow
@@ -49,6 +49,7 @@ import io.silv.hsrdmgcalc.ui.screens.add_light_cone.LightConeInfo
 import kotlinx.collections.immutable.ImmutableList
 import org.koin.androidx.compose.koinViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LightConeScreen(
     appState: AppState,
@@ -87,14 +88,41 @@ fun LightConeScreen(
         }
     }
 
-    LightConeScreenContent(
+    LaunchedOnSelectedDestinationClick(
         appState = appState,
+        destination = HsrDestination.LightCone
+    ) {
+        appState.bottomBarState.toggleProgress()
+    }
+
+    var displayOptionsVisible by rememberSaveable { mutableStateOf(false) }
+
+    UpdateBottomAppBar(
+        appState = appState,
+        peekContent = {
+            LazyRow(Modifier.padding(vertical = 12.dp)) {
+                pathFilterRow(
+                    startSelected = pathFilter,
+                    onPathSelected = viewModel::updatePathFilter
+                )
+            }
+        }
+    ) {
+        LightConeExpandedBottomBarContent(
+            showGroupingOptions = {  },
+            showDisplayOptions = { displayOptionsVisible = true }
+        )
+    }
+
+    LightConeScreenContent(
         lightCones = lightCones,
+        displayOptionsVisible = displayOptionsVisible,
+        hideDisplayOptions = { displayOptionsVisible = false },
+        displayPrefs = appState.displayPrefs.lightConePrefs,
         onLightConeClick = onLightConeClick,
         onGridSizeSelected = viewModel::updateGridCellCount,
         onAnimatePlacementChanged = viewModel::updateAnimateCardPlacement,
         onCardTypeSelected = viewModel::updateCardType,
-        onPathFilterSelected = viewModel::updatePathFilter,
         onAddLightConeClick = {
             navigateToAddLightConeForResult { info ->
                 if (info != null) {
@@ -102,31 +130,31 @@ fun LightConeScreen(
                 }
             }
         },
-        pathFilter = pathFilter
+        toggleExpandableBottomBarContent = {
+            appState.bottomBarState.progress =
+                if (appState.bottomBarState.progress == SheetValue.Expanded)
+                    SheetValue.Hidden
+                else
+                    SheetValue.Expanded
+        },
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LightConeScreenContent(
-    appState: AppState,
+    displayPrefs: DisplayPrefs.Prefs,
+    toggleExpandableBottomBarContent: () -> Unit,
     onAddLightConeClick: () -> Unit,
     onLightConeClick: (id: String) -> Unit,
     lightCones: ImmutableList<UiLightCone>,
-
+    displayOptionsVisible: Boolean,
     onGridSizeSelected: (Int) -> Unit,
     onAnimatePlacementChanged: (Boolean) -> Unit,
     onCardTypeSelected: (CardType) -> Unit,
-
-    onPathFilterSelected: (Path?) -> Unit,
-    pathFilter: Path?
+    hideDisplayOptions: () -> Unit
 ) {
-    val displayPrefs = appState.displayPrefs.lightConePrefs
 
-    var displayOptionsVisible by rememberSaveable {
-        mutableStateOf(false)
-    }
-    
     DisplayOptionsBottomSheet(
         visible = displayOptionsVisible,
         prefs = displayPrefs,
@@ -137,18 +165,12 @@ private fun LightConeScreenContent(
                 modifier = Modifier.padding(12.dp)
             )
         },
-        onDismissRequest = { displayOptionsVisible = false },
+        onDismissRequest = hideDisplayOptions,
         onGridSizeSelected = onGridSizeSelected,
         onAnimatePlacementChanged = onAnimatePlacementChanged,
         onCardTypeSelected = onCardTypeSelected
     )
 
-    LaunchedOnSelectedDestinationClick(
-        appState = appState,
-        destination = HsrDestination.LightCone
-    ) {
-        appState.bottomBarState.toggleProgress()
-    }
 
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
@@ -160,21 +182,6 @@ private fun LightConeScreenContent(
         mutableStateOf("")
     }
 
-    UpdateBottomAppBar(
-        appState = appState,
-        peekContent = {
-            LazyRow(Modifier.padding(vertical = 12.dp)) {
-                pathFilterRow(startSelected = pathFilter) { path ->
-                    onPathFilterSelected(path)
-                }
-            }
-        }
-    ) {
-        LightConeExpandedBottomBarContent(
-            showGroupingOptions = {  },
-            showDisplayOptions = { displayOptionsVisible = true }
-        )
-    }
 
 
     Scaffold(
@@ -194,15 +201,7 @@ private fun LightConeScreenContent(
                             null
                         )
                     }
-                    IconButton(
-                        onClick = {
-                            appState.bottomBarState.progress =
-                                if (appState.bottomBarState.progress == SheetValue.Expanded)
-                                    SheetValue.Hidden
-                                else
-                                    SheetValue.Expanded
-                        }
-                    ) {
+                    IconButton(onClick = toggleExpandableBottomBarContent) {
                         Icon(imageVector = Icons.Filled.FilterList, null)
                     }
                 },

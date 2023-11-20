@@ -3,9 +3,11 @@ package io.silv.hsrdmgcalc.ui.screens.character_details
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.silv.hsrdmgcalc.data.CalculateCharacterStats
 import io.silv.hsrdmgcalc.data.CharacterStats
 import io.silv.hsrdmgcalc.data.GetCharacterWithItems
 import io.silv.hsrdmgcalc.data.HonkaiDataRepository
+import io.silv.hsrdmgcalc.data.ValidateCharacterLevel
 import io.silv.hsrdmgcalc.ui.UiCharacter
 import io.silv.hsrdmgcalc.ui.UiLightCone
 import io.silv.hsrdmgcalc.ui.UiRelic
@@ -17,27 +19,33 @@ import kotlinx.coroutines.launch
 
 class CharacterDetailsViewModel(
     savedStateHandle: SavedStateHandle,
+    getCharacterWithItems: GetCharacterWithItems,
+    calculateCharacterStats: CalculateCharacterStats,
     private val honkaiDataRepository: HonkaiDataRepository,
-    private val getCharacterWithItems: GetCharacterWithItems
+    private val validateCharacterLevel: ValidateCharacterLevel
 ): ViewModel() {
 
     private val characterDetailsArgs = CharacterDetailsArgs(savedStateHandle)
 
-    val characterDetailsState = getCharacterWithItems.invoke(characterDetailsArgs.name)
+    val characterDetailsState = getCharacterWithItems(characterDetailsArgs.name)
         .map { characterWithItems ->
-            val uic = characterWithItems.character
-            val cBaseStats = CharacterStats.calcBaseStatsOrNull(uic.name, uic.level, uic.maxLevel)
+
+            val stats = calculateCharacterStats(
+                name = characterWithItems.character.name,
+                level = characterWithItems.character.level,
+                maxLevel = characterWithItems.character.maxLevel,
+                relicsStats = characterWithItems.relics.flatMap { relic -> relic.stats },
+                lightConeName = characterWithItems.lightCone?.name
+            )
+                .getOrNull()
+
             CharacterDetailsState.Success(
-                character = uic,
-                baseStats = cBaseStats,
+                character = characterWithItems.character,
+                baseStats = stats?.stats,
                 relics = characterWithItems.relics,
                 lightCone = characterWithItems.lightCone,
-                baseStatsWithRelics = cBaseStats?.let {
-                    CharacterStats.calcBaseStatsWithRelics(
-                        baseStats = it,
-                        addStats = characterWithItems.relics.flatMap { relic -> relic.stats }
-                    )
-                }
+                relicCalcInfo = stats?.relResult,
+                lightConeCalcInfo = stats?.lcResult
             )
         }
         .stateIn(
@@ -47,19 +55,14 @@ class CharacterDetailsViewModel(
         )
 
     fun updateLevel(maxLevel: Int, level: Int) {
-        val range = maxLevel.takeIf { max -> max in listOf(20, 40, 50, 60, 70, 80, 90) }
-            ?.let { max -> CharacterStats.levelRanges.find { r -> r.last == max } }
-            ?: return
-
-        if (level !in range)
-            return
-
         viewModelScope.launch {
-            honkaiDataRepository.updateCharacter(characterDetailsArgs.name) { character ->
-                character?.copy(
-                    maxLevel = maxLevel.toLong(),
-                    level = level.toLong()
-                )
+            if (validateCharacterLevel(level, maxLevel)) {
+                honkaiDataRepository.updateCharacter(characterDetailsArgs.name) { character ->
+                    character?.copy(
+                        maxLevel = maxLevel.toLong(),
+                        level = level.toLong()
+                    )
+                }
             }
         }
     }
@@ -84,6 +87,7 @@ sealed interface CharacterDetailsState {
         val relics: ImmutableList<UiRelic>,
         val lightCone: UiLightCone?,
         val baseStats: CharacterStats.BaseStats?,
-        val baseStatsWithRelics: CharacterStats.CalcInfo?,
+        val relicCalcInfo: CharacterStats.CalcInfo?,
+        val lightConeCalcInfo: CharacterStats.CalcInfo?
     ): CharacterDetailsState
 }

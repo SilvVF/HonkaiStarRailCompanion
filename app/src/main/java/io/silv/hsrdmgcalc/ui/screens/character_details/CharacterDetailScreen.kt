@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
@@ -45,15 +46,18 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastForEach
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.silv.hsrdmgcalc.R
 import io.silv.hsrdmgcalc.data.CharacterStats
 import io.silv.hsrdmgcalc.scopeNotNull
 import io.silv.hsrdmgcalc.ui.AppState
 import io.silv.hsrdmgcalc.ui.UiCharacter
+import io.silv.hsrdmgcalc.ui.UiRelic
 import io.silv.hsrdmgcalc.ui.composables.IconButtonRippleColor
 import io.silv.hsrdmgcalc.ui.screens.add_light_cone.composables.LevelSelector
 import io.silv.hsrdmgcalc.ui.screens.add_light_cone.composables.rememberLevelSelectorState
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -106,11 +110,22 @@ fun CharacterDetailSuccessScreen(
             CharacterBaseStats(
                 characterColor = character.type.color,
                 baseStats = characterDetailsState.baseStats,
-                calcInfo = characterDetailsState.baseStatsWithRelics
+                calcInfo = characterDetailsState.relicCalcInfo
             )
+            CharacterRelics(characterDetailsState.relics)
         }
     }
 }
+
+@Composable
+fun CharacterRelics(
+    relics: ImmutableList<UiRelic>
+) {
+    relics.fastForEach {
+
+    }
+}
+
 
 @Composable
 fun MarkOwnedCheckBox(
@@ -163,7 +178,8 @@ fun CharacterBaseStats(
                 icon = {
                     Icon(
                         painter = painterResource(id = R.drawable.icon_hp),
-                        contentDescription = "Health"
+                        contentDescription = "Health",
+                        modifier = Modifier.size(32.dp)
                     )
                 },
                 tag = "HP",
@@ -171,27 +187,27 @@ fun CharacterBaseStats(
                 statValue = remember(baseStats) { stats.hp.toFloat() },
                 rippleColor = characterColor
             )
-            Spacer(modifier = Modifier.height(2.dp))
             StatsItem(
                 modifier = Modifier.fillMaxWidth(),
                 icon = {
                     Icon(
                         painter = painterResource(id = R.drawable.icon_atk),
-                        contentDescription = "attack"
+                        contentDescription = "attack",
+                        modifier = Modifier.size(32.dp)
                     )
                 },
-                tooltipText = "Char. ATK ${base.atk} * (1 + Rel. ATK ${atk.pct}) + Rel. ATK${atk.additive}",
+                tooltipText = "Char. ATK ${base.atk} * (1 + Rel. ATK ${atk.pct}) + Rel. ATK ${atk.additive}",
                 tag = "ATK",
                 statValue = remember(baseStats) { stats.atk.toFloat() },
                 rippleColor = characterColor
             )
-            Spacer(modifier = Modifier.height(2.dp))
             StatsItem(
                 modifier = Modifier.fillMaxWidth(),
                 icon = {
                     Icon(
                         painter = painterResource(id = R.drawable.icon_def),
-                        contentDescription = "defense"
+                        contentDescription = "defense",
+                        modifier = Modifier.size(32.dp)
                     )
                 },
                 tag = "DEF",
@@ -199,13 +215,13 @@ fun CharacterBaseStats(
                 statValue = remember(baseStats) { stats.def.toFloat() },
                 rippleColor = characterColor
             )
-            Spacer(modifier = Modifier.height(2.dp))
             StatsItem(
                 modifier = Modifier.fillMaxWidth(),
                 icon = {
                     Icon(
                         painter = painterResource(id = R.drawable.icon_spd),
-                        contentDescription = "speed"
+                        contentDescription = "speed",
+                        modifier = Modifier.size(32.dp)
                     )
                 },
                 tag = "SPD",
@@ -233,10 +249,6 @@ fun StatsItem(
 
     fun showTooltip() {
         scope.launch { tooltipState.show() }
-    }
-
-    fun hideTooltip() {
-        scope.launch { tooltipState.dismiss() }
     }
 
     Row(

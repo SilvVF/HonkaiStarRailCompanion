@@ -10,33 +10,13 @@ import io.silv.honkai.LightCone
 import io.silv.honkai.Relic
 import io.silv.honkai.SelectWithLightCone
 import io.silv.hsrdmgcalc.AppDispatchers
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class HonkaiDataRepository(
     private val database: HonkaiDatabase,
     private val dispatchers: AppDispatchers,
 ) {
-    init {
-        CoroutineScope(dispatchers.io).launch {
-            database.relicQueries.insert(
-                Relic(
-                    id = 10L,
-                    relic_set = "BandsAnkleBootsWithRivets",
-                    slot = "Band",
-                    location = "Bronya",
-                    level = 10L,
-                    stats = listOf(
-                        "atkPct" to 0.10f,
-                        "defPct" to 0.10f,
-                        "hp" to 234f,
-                    )
-                )
-            )
-        }
-    }
 
     suspend fun updateCharacter(
         name: String,

@@ -217,7 +217,7 @@ object CharacterStats {
         )
     }
 
-    fun calcBaseStatsWithRelics(
+    fun calcStatsWithBonuses(
         baseStats: BaseStats,
         addStats: List<Pair<String, Float>>
     ): CalcInfo {

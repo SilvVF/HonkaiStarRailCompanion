@@ -4,7 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import io.silv.hsrdmgcalc.data.HonkaiConstants
+import io.silv.hsrdmgcalc.data.HonkaiUtils
 import io.silv.hsrdmgcalc.ui.composables.Path
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -90,27 +90,16 @@ class LightConeSearchStateHolder(
                         .asSequence()
                         .filter { query.isBlank() || query.lowercase() in it.first.lowercase() }
                         .filter { lightCone ->
-                            if (hideThreeStar) {
-                                HonkaiConstants.lightConeStars(lightCone.first) != 3
-                            } else {
-                                true
-                            }
+                            !hideThreeStar || HonkaiUtils.lightConeStars(lightCone.first) != 3
                         }
                         .filter { lightCone ->
-                            if (fiveStarOnly) {
-                                HonkaiConstants.lightConeStars(lightCone.first) == 5
-                            } else {
-                                true
-                            }
+                            !fiveStarOnly || HonkaiUtils.lightConeStars(lightCone.first) == 5
                         }
                         .filter { lightCone ->
-                            if (pathFilter != null) {
-                                lightCone.second == pathFilter
-                            } else {
-                                true
-                            }
+                            pathFilter == null || lightCone.second == pathFilter
                         }
                         .toImmutableList()
+
                     delay(300)
                     searching = false
                 }

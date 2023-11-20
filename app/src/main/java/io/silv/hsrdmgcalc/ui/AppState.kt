@@ -28,6 +28,7 @@ import io.silv.hsrdmgcalc.ui.composables.rememberExpandableState
 import io.silv.hsrdmgcalc.ui.navigation.HsrDestination
 import io.silv.hsrdmgcalc.ui.screens.character.navigateToCharacterGraph
 import io.silv.hsrdmgcalc.ui.screens.light_cone.navigateToLightConeGraph
+import io.silv.hsrdmgcalc.ui.screens.relic.navigateToRelicGraph
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -169,7 +170,7 @@ class AppState(
         }
         when (destination) {
             HsrDestination.Character -> navController.navigateToCharacterGraph(topLevelNavOptions)
-            HsrDestination.Relic -> navController.navigate("relic_graph", topLevelNavOptions)
+            HsrDestination.Relic -> navController.navigateToRelicGraph(topLevelNavOptions)
             HsrDestination.LightCone -> navController.navigateToLightConeGraph(topLevelNavOptions)
         }
     }

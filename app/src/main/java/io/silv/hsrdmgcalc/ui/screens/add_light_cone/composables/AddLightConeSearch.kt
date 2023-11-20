@@ -43,7 +43,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import io.silv.hsrdmgcalc.LocalNavBarHeight
 import io.silv.hsrdmgcalc.R
-import io.silv.hsrdmgcalc.data.HonkaiConstants
+import io.silv.hsrdmgcalc.data.HonkaiUtils
 import io.silv.hsrdmgcalc.ui.composables.LightConeIcon
 import io.silv.hsrdmgcalc.ui.composables.PathIcon
 import io.silv.hsrdmgcalc.ui.composables.ScrollbarLazyColumn
@@ -153,7 +153,7 @@ fun SelectLightConeSearch(
                 items = state.filteredLightCones,
                 key = { it.first }
             ) {(name, path) ->
-                val starCount = remember(name) { HonkaiConstants.lightConeStars(name) }
+                val starCount = remember(name) { HonkaiUtils.lightConeStars(name) }
 
                 Row(
                     modifier = Modifier

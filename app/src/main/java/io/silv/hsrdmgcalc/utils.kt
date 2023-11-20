@@ -14,18 +14,22 @@ inline fun <T> Iterable<T>.sumOf(selector: (T) -> Float): Float {
 
 
 @OptIn(ExperimentalContracts::class)
-inline fun <T, V, R> scopeNotNull(
-    t: T?,
-    v: V?,
-    block: (T, V) -> R
+inline fun <T1, T2, R> scopeNotNull(
+    t1: T1?,
+    t2: T2?,
+    block: (T1, T2) -> R
 ): R? {
+
     contract {
         callsInPlace(block, InvocationKind.EXACTLY_ONCE)
     }
-    if (t != null && v != null) {
-        return block(t, v)
+
+    if (t1 != null && t2 != null) {
+        return block(t1, t2)
     }
 
     return null
 }
+
+
 

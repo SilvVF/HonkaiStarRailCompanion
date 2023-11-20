@@ -29,7 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import io.silv.hsrdmgcalc.data.HonkaiConstants
+import io.silv.hsrdmgcalc.data.HonkaiUtils
 import io.silv.hsrdmgcalc.ui.composables.LightConeIcon
 import io.silv.hsrdmgcalc.ui.composables.Path
 import io.silv.hsrdmgcalc.ui.composables.PathIcon
@@ -63,7 +63,7 @@ fun SelectedLightCone(
             if (it != null) {
                 Box(Modifier.fillMaxSize()) {
                     BackGroundGradient(
-                        starCount = remember(it) { HonkaiConstants.lightConeStars(it) },
+                        starCount = remember(it) { HonkaiUtils.lightConeStars(it) },
                         modifier = Modifier.matchParentSize()
                     )
                     LightConeIcon(

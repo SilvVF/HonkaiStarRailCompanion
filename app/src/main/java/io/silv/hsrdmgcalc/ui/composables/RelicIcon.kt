@@ -3,6 +3,8 @@ package io.silv.hsrdmgcalc.ui.composables
 import androidx.annotation.DrawableRes
 import io.silv.hsrdmgcalc.R
 
+
+
 @DrawableRes
 fun getRelicsResource(name: String): Int {
     return when(name) {

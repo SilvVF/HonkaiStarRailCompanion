@@ -1,11 +1,17 @@
 package io.silv.hsrdmgcalc.data
 
+import io.silv.hsrdmgcalc.data.HonkaiConstants.Piece.Body
+import io.silv.hsrdmgcalc.data.HonkaiConstants.Piece.Feet
+import io.silv.hsrdmgcalc.data.HonkaiConstants.Piece.Hand
+import io.silv.hsrdmgcalc.data.HonkaiConstants.Piece.Head
+import io.silv.hsrdmgcalc.data.HonkaiConstants.Piece.Rope
+import io.silv.hsrdmgcalc.data.HonkaiConstants.Piece.Sphere
 import io.silv.hsrdmgcalc.ui.composables.Path
-import io.silv.hsrdmgcalc.ui.composables.Type
 
 object HonkaiConstants {
 
     const val CharacterListVersion = 1
+    const val LightConeListVersion = 1
 
     val characters by lazy {
         listOf(
@@ -46,40 +52,7 @@ object HonkaiConstants {
         )
     }
 
-
-    fun characterType(name: String): Type {
-        return when (name.lowercase()) {
-            in listOf("asta", "guinaifen", "himeko", "hook", "trailblazerfire") -> Type.Fire
-            in listOf("gepard", "herta", "jingliu", "march7th", "pela", "yanqing") -> Type.Ice
-            in listOf("arlan", "bailu", "jingyuan", "kafka", "serval", "tingyun") -> Type.Lightning
-            in listOf("blade", "bronya", "danheng", "huohuo", "sampo") -> Type.Wind
-            in listOf("fuxuan", "lynx", "qingque", "seele", "silverwolf") -> Type.Quantum
-            in listOf("danhengimbibitorlunae", "luocha", "welt", "yukong") -> Type.Imaginary
-            else -> Type.Physical
-        }
-    }
-
-    fun is5Star(name: String): Boolean {
-        return name in listOf(
-            "Bailu", "Blade", "Bronya", "Clara", "DanHengImbibitorLunae",
-            "FuXuan", "Gepard", "Himeko", "JingYuan", "Jingliu", "Kafka",
-            "Luocha", "Seele", "SilverWolf", "TrailblazerFire",
-            "TrailblazerPhysical", "Welt", "Yanqing")
-    }
-
-    fun characterPath(name: String): Path {
-        return when(name.lowercase()) {
-            in listOf("bailu", "huohuo", "luocha", "lynx", "natasha") -> Path.Abundance
-            in listOf("arlan", "blade", "clara", "danhengimbibitorlunae", "hook", "jingliu", "trailblazerphysical") -> Path.Destruction
-            in listOf("argenti", "herta", "himeko", "jingyuan", "qingque", "serval") -> Path.Erudition
-            in listOf("asta", "bronya", "hanya", "tingyun", "yukong") -> Path.Harmony
-            in listOf("danheng", "seele", "sushang", "topaz&numby", "yanqing") -> Path.TheHunt
-            in listOf("guinaifen", "kafka", "luka", "pela", "sampo", "silverwolf", "welt") -> Path.Nihility
-            else -> Path.Preservation
-        }
-    }
-
-    const val LightConeListVersion = 1
+    val lightConeToPathMap by lazy { lightCones.toMap() }
 
     val lightCones by lazy {
         listOf(
@@ -164,177 +137,163 @@ object HonkaiConstants {
         )
     }
 
-    fun lightConeStars(name: String): Int {
-        return when (name) {
-            in listOf(
-                "Adversarial",
-                "Amber",
-                "Arrows",
-                "Chorus",
-                "CollapsingSky",
-                "Cornucopia",
-                "DartingArrow",
-                "DataBank",
-                "Defense",
-                "FineFruit",
-                "HiddenShadow",
-                "Loop",
-                "Meditation",
-                "MeshingCogs",
-                "Multiplication",
-                "MutualDemise",
-                "Passkey",
-                "Pioneering",
-                "Sagacity",
-                "ShatteredHome",
-                "Void"
-            ) -> 3
-            in listOf(
-                "BeforeDawn",
-                "BrighterThanTheSun",
-                "ButTheBattleInstOver",
-                "CruisingInTheStellarSea",
-                "EchoesOfTheCoffin",
-                "IShallBeMyOwnSword",
-                "InTheNameOfTheWorld",
-                "InTheNight",
-                "IncessantRain",
-                "MomentOfVictory",
-                "NightOnTheMilkyWay",
-                "OnTheFallOfAnAeon",
-                "PatienceIsAllYouNeed",
-                "SheAlreadyShutHerEyes",
-                "SleepLikeTheDead",
-                "SolitaryHealing",
-                "SomethingIrreplaceable",
-                "TextureOfTheMemories",
-                "TheUnreachableSide",
-                "TimeWaitsForNoOne",
-                "WorrisomeBlissful"
-            ) -> 5
-            else -> 4
-        }
-    }
+    enum class Piece { Head, Hand, Body, Feet, Rope, Sphere }
 
     val relics by lazy {
-        listOf(
-            "BandsAnkleBootsWithRivets",
-            "BandsLeatherJacketWithStuds",
-            "BandsPolarizedSunglasses",
-            "BandsTouringBracelet",
-            "BandOfSizzlingThunder",
-            "BelobogsFortressOfPreservation",
-            "BelobogsIronDefense",
-            "BelobogOfTheArchitects",
-            "BrokenKeel",
-            "CelestialDifferentiator",
+        mapOf(
+            "BandOfSizzlingThunder" to mapOf(
+                Feet to "BandsAnkleBootsWithRivets",
+                Body to "BandsLeatherJacketWithStuds",
+                Head to "BandsPolarizedSunglasses",
+                Hand to "BandsTouringBracelet",
+            ),
 
-            "ChampionsChestGuard",
-            "ChampionsFleetfootBoots",
-            "ChampionsHeadgear",
-            "ChampionsHeavyGloves",
-            "ChampionOfStreetwiseBoxing",
 
-            "DisciplesCelestialSilkSandals",
-            "DisciplesDewyFeatherGarb",
-            "DisciplesIngeniumHand",
-            "DisciplesProstheticEye",
-            "EaglesBeakedHelmet",
-            "EaglesQuiltedPuttees",
-            "EaglesSoaringRing",
-            "EaglesWingedSuitHarness",
-            "EagleOfTwilightLine",
-            "FiresmithsAlloyLeg",
-            "FiresmithsFireproofApron",
-            "FiresmithsObsidianGoggles",
-            "FiresmithsRingOfFlamemastery",
-            "FiresmithOfLavaforging",
-            "FleetOfTheAgeless",
-            "GeniussFrequencyCatcher",
-            "GeniussGravityWalker",
-            "GeniussMetafieldSuit",
-            "GeniussUltraremoteSensingVisor",
-            "GeniusOfBrilliantStars",
-            "GuardsCastIronHelmet",
-            "GuardsShiningGauntlets",
-            "GuardsSilverGreaves",
-            "GuardsUniformOfOld",
-            "GuardOfWutheringSnow",
-            "HertasSpaceStation",
-            "HertasWanderingTrek",
+            "BelobogOfTheArchitects" to mapOf(
+                Sphere to "BelobogsFortressOfPreservation",
+                Rope to "BelobogsIronDefense",
+            ),
 
-            "HuntersArtaiusHood",
-            "HuntersIceDragonCloak",
-            "HuntersLizardGloves",
-            "HuntersSoftElkskinBoots",
-            "HunterOfGlacialForest",
+            "BrokenKeel" to mapOf(
+                Sphere to "InsumoususWhalefallShip",
+                Rope to "InsumoususFrayedHawser"
+            ),
 
-            "InertSalsotto",
-            "InsumoususFrayedHawser",
-            "InsumoususWhalefallShip",
 
-            "KnightsForgivingCasque",
-            "KnightsIronBootsOfOrder",
-            "KnightsSilentOathRing",
-            "KnightsSolemnBreastplate",
-            "KnightOfPurityPalace",
+            "CelestialDifferentiator" to mapOf(
+                Sphere to "PlanetScrewllumsMechanicalSun",
+                Rope to "PlanetScrewllumsRingSystem"
+            ),
 
-            "LongevousDisciple",
+            "ChampionOfStreetwiseBoxing" to mapOf(
+                Body to "ChampionsChestGuard",
+                Feet to "ChampionsFleetfootBoots",
+                Head to "ChampionsHeadgear",
+                Hand to "ChampionsHeavyGloves",
+            ),
 
-            "MessengersHolovisor",
-            "MessengersParkoolSneakers",
-            "MessengersSecretSatchel",
-            "MessengersTransformativeArm",
-            "MessengerTraversingHackerspace",
 
-            "MusketeersCoarseLeatherGloves",
-            "MusketeersRivetsRidingBoots",
-            "MusketeersWildWheatFeltHat",
-            "MusketeersWindhuntingShawl",
-            "MusketeerOfWildWheat",
+            "LongevousDisciple" to mapOf(
+                Feet to "DisciplesCelestialSilkSandals",
+                Body to "DisciplesDewyFeatherGarb",
+                Hand to "DisciplesIngeniumHand",
+                Head to "DisciplesProstheticEye",
+            ),
 
-            "PancosmicCommercialEnterprise",
+            "EagleOfTwilightLine" to mapOf(
+                Head to "EaglesBeakedHelmet",
+                Feet to "EaglesQuiltedPuttees",
+                Hand to "EaglesSoaringRing",
+                Body to "EaglesWingedSuitHarness",
+            ),
 
-            "PasserbysRaggedEmbroidedCoat",
-            "PasserbysRejuvenatedWoodenHairstick",
-            "PasserbysRoamingDragonBracer",
-            "PasserbysStygianHikingBoots",
-            "PasserbyOfWanderingCloud",
 
-            "PlanetScrewllumsMechanicalSun",
-            "PlanetScrewllumsRingSystem",
-            "RutilantArena",
-            "SalsottosMovingCity",
-            "SalsottosTerminatorLine",
-            "SpaceSealingStation",
-            "SprightlyVonwacq",
-            "TaikiyansArclightRaceTrack",
-            "TaikiyanLaserStadium",
+            "FiresmithOfLavaforging" to mapOf(
+                Feet to "FiresmithsAlloyLeg",
+                Body to "FiresmithsFireproofApron",
+                Head to "FiresmithsObsidianGoggles",
+                Hand to "FiresmithsRingOfFlamemastery",
+            ),
 
-            "TaliasExposedElectricWire",
-            "TaliasNailscrapTown",
-            "TaliaKingdomOfBanditry",
+            "FleetOfTheAgeless" to mapOf(
+                Rope to "TheXianzhouLuofusAmbrosialArborVines",
+                Sphere to "TheXianzhouLuofusCelestialArk",
+            ),
 
-            "TheIpcsMegaHq",
-            "TheIpcsTradeRoute",
+            "GeniusOfBrilliantStars" to mapOf(
+                Hand to "GeniussFrequencyCatcher",
+                Feet to "GeniussGravityWalker",
+                Body to "GeniussMetafieldSuit",
+                Head to "GeniussUltraremoteSensingVisor",
+            ),
 
-            "TheXianzhouLuofusAmbrosialArborVines",
-            "TheXianzhouLuofusCelestialArk",
+            "GuardOfWutheringSnow" to mapOf(
+                Head to "GuardsCastIronHelmet",
+                Hand to "GuardsShiningGauntlets",
+                Feet to "GuardsSilverGreaves",
+                Body to "GuardsUniformOfOld",
+            ),
 
-            "ThiefsGlovesWithPrints",
-            "ThiefsMeteorBoots",
-            "ThiefsMyriadfacedMask",
-            "ThiefsSteelGrapplingHook",
-            "ThiefOfShootingMeteor",
+            "SpaceSealingStation" to mapOf(
+                Sphere to "HertasSpaceStation",
+                Rope to "HertasWanderingTrek",
+            ),
 
-            "VonwacqsIslandicCoast",
-            "VonwacqsIslandOfBirth",
+            "HunterOfGlacialForest" to mapOf(
+                Head to "HuntersArtaiusHood",
+                Body to "HuntersIceDragonCloak",
+                Hand to "HuntersLizardGloves",
+                Feet to "HuntersSoftElkskinBoots",
+            ),
 
-            "WastelandersBreathingMask",
-            "WastelandersDesertTerminal",
-            "WastelandersFriarRobe",
-            "WastelandersPoweredGreaves",
-            "WastelanderOfBanditryDesert",
+            "InertSalsotto" to mapOf(
+                Sphere to "SalsottosMovingCity",
+                Rope to "SalsottosTerminatorLine",
+            ),
+
+
+            "KnightOfPurityPalace" to mapOf(
+                Head to "KnightsForgivingCasque",
+                Feet to "KnightsIronBootsOfOrder",
+                Hand to "KnightsSilentOathRing",
+                Body to "KnightsSolemnBreastplate",
+            ),
+
+            "MessengerTraversingHackerspace" to mapOf(
+                Head to  "MessengersHolovisor",
+                Feet to "MessengersParkoolSneakers",
+                Body to "MessengersSecretSatchel",
+                Hand to "MessengersTransformativeArm"
+            ),
+
+            "MusketeerOfWildWheat" to mapOf(
+                Hand to "MusketeersCoarseLeatherGloves",
+                Feet to "MusketeersRivetsRidingBoots",
+                Head to "MusketeersWildWheatFeltHat",
+                Body to "MusketeersWindhuntingShawl",
+            ),
+
+
+            "PancosmicCommercialEnterprise" to mapOf(
+                Sphere to "TheIpcsMegaHq",
+                Rope to "TheIpcsTradeRoute",
+            ),
+
+            "PasserbyOfWanderingCloud" to mapOf(
+                Body to "PasserbysRaggedEmbroidedCoat",
+                Head to "PasserbysRejuvenatedWoodenHairstick",
+                Hand to "PasserbysRoamingDragonBracer",
+                Feet to "PasserbysStygianHikingBoots",
+            ),
+
+            "RutilantArena" to mapOf(
+                Rope to "TaikiyansArclightRaceTrack",
+                Sphere to "TaikiyanLaserStadium",
+            ),
+
+            "SprightlyVonwacq" to mapOf(
+                Rope to "VonwacqsIslandicCoast",
+                Sphere to "VonwacqsIslandOfBirth",
+            ),
+
+            "TaliaKingdomOfBanditry" to mapOf(
+                Rope to "TaliasExposedElectricWire",
+                Sphere to "TaliasNailscrapTown",
+            ),
+
+            "ThiefOfShootingMeteor" to mapOf(
+                Hand to "ThiefsGlovesWithPrints",
+                Feet to "ThiefsMeteorBoots",
+                Head to "ThiefsMyriadfacedMask",
+                Body to "ThiefsSteelGrapplingHook",
+            ),
+
+            "WastelanderOfBanditryDesert" to mapOf(
+                Hand to  "WastelandersDesertTerminal",
+                Body to "WastelandersFriarRobe",
+                Feet to "WastelandersPoweredGreaves",
+                Head to "WastelandersBreathingMask"
+            ),
         )
     }
 }

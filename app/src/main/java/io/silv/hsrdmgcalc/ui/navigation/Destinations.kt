@@ -32,6 +32,8 @@ sealed class SubDestination(
     }
 
     data object LightConeAdd: SubDestination("light_cone_add")
+
+    data object RelicAdd: SubDestination("relic_add")
 }
 
 sealed class HsrDestination(

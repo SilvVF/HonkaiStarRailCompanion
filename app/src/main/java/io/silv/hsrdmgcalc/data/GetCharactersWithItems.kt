@@ -43,7 +43,7 @@ class GetCharacterWithItems(
     private val dataRepository: HonkaiDataRepository
 ) {
 
-    fun invoke(name: String) = combine(
+    operator fun invoke(name: String) = combine(
         dataRepository.observeCharacterByName(name),
         dataRepository.observeLightConeForCharacter(name),
         dataRepository.observeRelicsForCharacter(name)
@@ -71,9 +71,9 @@ fun Character.toUi(): UiCharacter {
         traceTechnique = trace_technique.toInt(),
         traceTalent = trace_talent.toInt(),
         applyStatBonuses = apply_stat_bonuses,
-        type = HonkaiConstants.characterType(name),
-        path = HonkaiConstants.characterPath(name),
-        is5star = HonkaiConstants.is5Star(name),
+        type = HonkaiUtils.characterType(name),
+        path = HonkaiUtils.characterPath(name),
+        is5star = HonkaiUtils.is5Star(name),
     )
 }
 
@@ -84,7 +84,7 @@ fun LightCone.toUi(): UiLightCone {
         level = level.toInt(),
         superimpose = superimpose.toInt(),
         location = location,
-        path = Path.Nihility
+        path = HonkaiConstants.lightConeToPathMap[name] ?: Path.TheHunt
     )
 }
 
