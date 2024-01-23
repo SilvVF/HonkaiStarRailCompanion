@@ -1,9 +1,9 @@
 package io.silv.hsrdmgcalc.ui.screens
 
-import io.silv.hsrdmgcalc.data.CalculateCharacterStats
-import io.silv.hsrdmgcalc.data.GetCharacterWithItems
-import io.silv.hsrdmgcalc.data.GetCharactersWithItems
-import io.silv.hsrdmgcalc.data.ValidateCharacterLevel
+import io.silv.data.CalculateCharacterStats
+import io.silv.hsrdmgcalc.GetCharacterWithItems
+import io.silv.hsrdmgcalc.GetCharactersWithItems
+import io.silv.data.ValidateCharacterLevel
 import io.silv.hsrdmgcalc.ui.screens.add_light_cone.AddLightConeViewModel
 import io.silv.hsrdmgcalc.ui.screens.character.CharacterViewModel
 import io.silv.hsrdmgcalc.ui.screens.character_details.CharacterDetailsViewModel

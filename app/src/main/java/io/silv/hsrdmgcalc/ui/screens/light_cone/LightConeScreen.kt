@@ -33,7 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.silv.hsrdmgcalc.LocalNavBarHeight
-import io.silv.hsrdmgcalc.preferences.DisplayPrefs
+import io.silv.data.preferences.DisplayPrefs
 import io.silv.hsrdmgcalc.ui.AppState
 import io.silv.hsrdmgcalc.ui.UiLightCone
 import io.silv.hsrdmgcalc.ui.composables.CardType

@@ -29,7 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import io.silv.hsrdmgcalc.data.HonkaiUtils
+import io.silv.data.constants.HonkaiUtils
 import io.silv.hsrdmgcalc.ui.composables.LightConeIcon
 import io.silv.hsrdmgcalc.ui.composables.Path
 import io.silv.hsrdmgcalc.ui.composables.PathIcon

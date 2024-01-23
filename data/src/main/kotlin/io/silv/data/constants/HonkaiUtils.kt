@@ -1,7 +1,5 @@
-package io.silv.hsrdmgcalc.data
+package io.silv.data.constants
 
-import io.silv.hsrdmgcalc.ui.composables.Path
-import io.silv.hsrdmgcalc.ui.composables.Type
 
 object HonkaiUtils {
 

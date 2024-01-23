@@ -7,7 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import io.silv.hsrdmgcalc.data.HonkaiConstants
+import io.silv.data.constants.HonkaiConstants
 import io.silv.hsrdmgcalc.ui.AppState
 import io.silv.hsrdmgcalc.ui.navigation.NavResultCallback
 import io.silv.hsrdmgcalc.ui.navigation.SubDestination

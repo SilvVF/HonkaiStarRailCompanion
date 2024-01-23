@@ -28,16 +28,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEachIndexed
-import io.silv.hsrdmgcalc.preferences.DisplayPrefs
+import io.silv.data.preferences.CardType
+import io.silv.data.preferences.DisplayPrefs
 import kotlin.math.roundToInt
-
-enum class CardType(val string: String) {
-    Full("Full Card"),
-    List("List"),
-    SemiCompact("Semi-Compact Card"),
-    Compact("Compact Card"),
-    ExtraCompact("Extra-Compact Card")
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

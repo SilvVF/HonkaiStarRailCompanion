@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastFirstOrNull
+import io.silv.data.constants.Path
 import kotlinx.collections.immutable.persistentListOf
 
 //Destruction
@@ -32,15 +33,6 @@ import kotlinx.collections.immutable.persistentListOf
 //Nihility
 //Preservation
 //Abundance
-enum class Path(val color: Color) {
-    Destruction(PHYSICAL),
-    TheHunt(PHYSICAL),
-    Erudition(PHYSICAL),
-    Harmony(PHYSICAL),
-    Nihility(PHYSICAL),
-    Preservation(PHYSICAL),
-    Abundance(PHYSICAL),
-}
 
 @OptIn(ExperimentalFoundationApi::class)
 fun LazyListScope.pathFilterRow(

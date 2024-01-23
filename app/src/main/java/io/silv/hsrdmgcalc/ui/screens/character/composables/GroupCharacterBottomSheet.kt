@@ -29,8 +29,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import io.silv.hsrdmgcalc.preferences.DisplayPrefs
-import io.silv.hsrdmgcalc.preferences.Grouping
+import io.silv.data.preferences.DisplayPrefs
+import io.silv.data.preferences.Grouping
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

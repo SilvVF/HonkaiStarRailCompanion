@@ -1,6 +1,5 @@
-package io.silv.hsrdmgcalc.data
+package io.silv.data.constants
 
-import io.silv.hsrdmgcalc.sumOf
 import kotlin.math.roundToInt
 
 typealias HP = Int
@@ -309,4 +308,8 @@ object CharacterStats {
             }
         }
     }
+}
+
+private fun <E> List<E>.sumOf(function: (E) -> Float): Float {
+    return this.sumOf { function(it) }
 }

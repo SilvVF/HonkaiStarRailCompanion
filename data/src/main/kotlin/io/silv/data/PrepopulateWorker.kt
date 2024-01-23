@@ -1,4 +1,4 @@
-package io.silv.hsrdmgcalc.data
+package io.silv.data
 
 import android.content.Context
 import android.util.Log
@@ -7,8 +7,9 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
-import io.silv.HonkaiDatabase
-import io.silv.hsrdmgcalc.preferences.DataPreferences
+import io.silv.data.Database
+import io.silv.data.constants.HonkaiConstants
+import io.silv.data.preferences.DataPreferences
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -18,7 +19,7 @@ class PrepopulateWorker(
 ): CoroutineWorker(applicationContext, workerParameters), KoinComponent {
 
     private val TAG = "PrepopulateWorker"
-    private val db by inject<HonkaiDatabase>()
+    private val db by inject<Database>()
     private val dataPrefs by inject<DataPreferences>()
 
 //    private suspend fun prepopulateLightCones() = runCatching {

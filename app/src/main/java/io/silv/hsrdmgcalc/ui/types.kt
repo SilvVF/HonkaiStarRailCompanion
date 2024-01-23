@@ -2,7 +2,7 @@ package io.silv.hsrdmgcalc.ui
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import io.silv.hsrdmgcalc.data.CharacterStats
+import io.silv.data.constants.CharacterStats
 import io.silv.hsrdmgcalc.ui.composables.Path
 import io.silv.hsrdmgcalc.ui.composables.Type
 

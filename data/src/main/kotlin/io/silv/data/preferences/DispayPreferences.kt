@@ -1,4 +1,4 @@
-package io.silv.hsrdmgcalc.preferences
+package io.silv.data.preferences
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
@@ -7,12 +7,19 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
-import io.silv.hsrdmgcalc.ui.composables.CardType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 enum class Grouping {
     ASC, DSC, NONE
+}
+
+enum class CardType(val string: String) {
+    Full("Full Card"),
+    List("List"),
+    SemiCompact("Semi-Compact Card"),
+    Compact("Compact Card"),
+    ExtraCompact("Extra-Compact Card")
 }
 
 @Stable
@@ -58,7 +65,7 @@ class DisplayPreferencesImpl(
     ): DisplayPrefs.Prefs {
         return DisplayPrefs.Prefs(
             gridCells = this[gridCells] ?: 3,
-            cardType =  CardType.values().getOrNull(this[cardType] ?: -1) ?: CardType.SemiCompact,
+            cardType = CardType.values().getOrNull(this[cardType] ?: -1) ?: CardType.SemiCompact,
             animateCardPlacement = this[animate] ?: true
         )
     }

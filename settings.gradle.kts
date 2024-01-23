@@ -15,3 +15,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "HsrDmgCalc"
 include(":app")
+include(":presentation-core")
+include(":data")
+include(":core")

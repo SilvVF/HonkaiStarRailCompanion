@@ -1,7 +1,7 @@
 package io.silv.hsrdmgcalc
 
-import io.silv.hsrdmgcalc.data.dataModule
-import io.silv.hsrdmgcalc.preferences.preferencesModule
+import io.silv.data.dataModule
+import io.silv.data.preferences.preferencesModule
 import io.silv.hsrdmgcalc.ui.screens.viewModelModule
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers

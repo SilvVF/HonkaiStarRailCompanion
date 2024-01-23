@@ -1,8 +1,8 @@
-package io.silv.hsrdmgcalc.data
+package io.silv.data
 
 import androidx.work.WorkManager
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
-import io.silv.HonkaiDatabase
+import io.silv.data.constants.Adapters
 import io.silv.honkai.Relic
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.workmanager.dsl.workerOf
@@ -12,10 +12,10 @@ import org.koin.dsl.module
 val dataModule = module {
 
     single {
-        HonkaiDatabase(
+        Database(
             RelicAdapter = Relic.Adapter(Adapters.listOfPairStringFloatAdapter),
             driver = AndroidSqliteDriver(
-                HonkaiDatabase.Schema,
+                Database.Schema,
                 androidContext(),
                 "honkai.db"
             )

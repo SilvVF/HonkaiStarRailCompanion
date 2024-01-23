@@ -1,4 +1,6 @@
-package io.silv.hsrdmgcalc.data
+package io.silv.data
+
+import io.silv.data.constants.CharacterStats
 
 class ValidateCharacterLevel {
 

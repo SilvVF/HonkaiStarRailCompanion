@@ -1,9 +1,9 @@
 package io.silv.hsrdmgcalc
 
 import android.app.Application
-import io.silv.hsrdmgcalc.data.PrepopulateWorker
-import io.silv.hsrdmgcalc.data.dataModule
-import io.silv.hsrdmgcalc.preferences.preferencesModule
+import io.silv.data.PrepopulateWorker
+import io.silv.data.dataModule
+import io.silv.data.preferences.preferencesModule
 import io.silv.hsrdmgcalc.ui.screens.viewModelModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger

@@ -1,4 +1,4 @@
-package io.silv.hsrdmgcalc.preferences
+package io.silv.data.preferences
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences

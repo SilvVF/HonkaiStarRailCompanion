@@ -4,7 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import io.silv.hsrdmgcalc.data.HonkaiUtils
+import io.silv.data.constants.HonkaiUtils
 import io.silv.hsrdmgcalc.ui.composables.Path
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf

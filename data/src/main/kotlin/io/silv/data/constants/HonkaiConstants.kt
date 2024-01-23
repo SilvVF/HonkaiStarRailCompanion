@@ -1,12 +1,40 @@
-package io.silv.hsrdmgcalc.data
+package io.silv.data.constants
 
-import io.silv.hsrdmgcalc.data.HonkaiConstants.Piece.Body
-import io.silv.hsrdmgcalc.data.HonkaiConstants.Piece.Feet
-import io.silv.hsrdmgcalc.data.HonkaiConstants.Piece.Hand
-import io.silv.hsrdmgcalc.data.HonkaiConstants.Piece.Head
-import io.silv.hsrdmgcalc.data.HonkaiConstants.Piece.Rope
-import io.silv.hsrdmgcalc.data.HonkaiConstants.Piece.Sphere
-import io.silv.hsrdmgcalc.ui.composables.Path
+import androidx.compose.ui.graphics.Color
+import io.silv.data.constants.HonkaiConstants.Piece.Body
+import io.silv.data.constants.HonkaiConstants.Piece.Feet
+import io.silv.data.constants.HonkaiConstants.Piece.Hand
+import io.silv.data.constants.HonkaiConstants.Piece.Head
+import io.silv.data.constants.HonkaiConstants.Piece.Rope
+import io.silv.data.constants.HonkaiConstants.Piece.Sphere
+
+enum class Path(val color: Color) {
+    Destruction(PHYSICAL),
+    TheHunt(PHYSICAL),
+    Erudition(PHYSICAL),
+    Harmony(PHYSICAL),
+    Nihility(PHYSICAL),
+    Preservation(PHYSICAL),
+    Abundance(PHYSICAL),
+}
+
+val IMAGINARY = Color(0xffF8EB70)
+val PHYSICAL = Color(0xffC5C5C5)
+val LIGHTNING = Color(0xffDB77F4)
+val FIRE = Color(0xffE62929)
+val ICE = Color(0xff8BD4EF)
+val WIND = Color(0xff87DAA7)
+val QUANTUM = Color(0xff746DD1)
+
+enum class Type(val color: Color) {
+    Physical(PHYSICAL),
+    Fire(FIRE),
+    Ice(ICE),
+    Lightning(LIGHTNING),
+    Wind(WIND),
+    Quantum(QUANTUM),
+    Imaginary(IMAGINARY),
+}
 
 object HonkaiConstants {
 

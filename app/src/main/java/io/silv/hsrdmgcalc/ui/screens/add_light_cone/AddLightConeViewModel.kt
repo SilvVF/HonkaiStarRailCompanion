@@ -3,8 +3,8 @@ package io.silv.hsrdmgcalc.ui.screens.add_light_cone
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.silv.hsrdmgcalc.ApplicationScope
-import io.silv.hsrdmgcalc.data.HonkaiConstants
-import io.silv.hsrdmgcalc.data.HonkaiDataRepository
+import io.silv.data.constants.HonkaiConstants
+import io.silv.data.HonkaiDataRepository
 import kotlinx.collections.immutable.toImmutableList
 
 

@@ -3,11 +3,11 @@ package io.silv.hsrdmgcalc.ui.screens.character_details
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.silv.hsrdmgcalc.data.CalculateCharacterStats
-import io.silv.hsrdmgcalc.data.CharacterStats
-import io.silv.hsrdmgcalc.data.GetCharacterWithItems
-import io.silv.hsrdmgcalc.data.HonkaiDataRepository
-import io.silv.hsrdmgcalc.data.ValidateCharacterLevel
+import io.silv.data.CalculateCharacterStats
+import io.silv.data.constants.CharacterStats
+import io.silv.hsrdmgcalc.GetCharacterWithItems
+import io.silv.data.HonkaiDataRepository
+import io.silv.data.ValidateCharacterLevel
 import io.silv.hsrdmgcalc.ui.UiCharacter
 import io.silv.hsrdmgcalc.ui.UiLightCone
 import io.silv.hsrdmgcalc.ui.UiRelic

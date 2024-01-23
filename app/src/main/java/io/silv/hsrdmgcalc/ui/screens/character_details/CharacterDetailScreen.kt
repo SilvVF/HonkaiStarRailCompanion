@@ -49,7 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.silv.hsrdmgcalc.R
-import io.silv.hsrdmgcalc.data.CharacterStats
+import io.silv.data.constants.CharacterStats
 import io.silv.hsrdmgcalc.scopeNotNull
 import io.silv.hsrdmgcalc.ui.AppState
 import io.silv.hsrdmgcalc.ui.UiCharacter

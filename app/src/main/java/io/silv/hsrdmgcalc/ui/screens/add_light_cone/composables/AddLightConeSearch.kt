@@ -43,7 +43,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import io.silv.hsrdmgcalc.LocalNavBarHeight
 import io.silv.hsrdmgcalc.R
-import io.silv.hsrdmgcalc.data.HonkaiUtils
+import io.silv.data.constants.HonkaiUtils
 import io.silv.hsrdmgcalc.ui.composables.LightConeIcon
 import io.silv.hsrdmgcalc.ui.composables.PathIcon
 import io.silv.hsrdmgcalc.ui.composables.ScrollbarLazyColumn

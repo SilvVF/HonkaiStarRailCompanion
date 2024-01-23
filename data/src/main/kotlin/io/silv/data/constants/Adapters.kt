@@ -1,4 +1,4 @@
-package io.silv.hsrdmgcalc.data
+package io.silv.data.constants
 
 import app.cash.sqldelight.ColumnAdapter
 

@@ -35,7 +35,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import io.silv.hsrdmgcalc.R
-import io.silv.hsrdmgcalc.data.HonkaiConstants
+import io.silv.data.constants.HonkaiConstants
 import io.silv.hsrdmgcalc.ui.composables.CharacterIcon
 import io.silv.hsrdmgcalc.ui.composables.Path
 import io.silv.hsrdmgcalc.ui.composables.PathIcon

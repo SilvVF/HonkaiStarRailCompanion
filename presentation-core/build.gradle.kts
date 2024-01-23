@@ -1,23 +1,18 @@
+@Suppress("DSL_SCOPE_VIOLATION") // TODO: Remove once KTIJ-19369 is fixed
 plugins {
-    alias(libs.plugins.androidApplication)
+    alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlinAndroid)
 }
 
 android {
-    namespace = "io.silv.hsrdmgcalc"
+    namespace = "io.silv.presentation_core"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "io.silv.hsrdmgcalc"
-        minSdk = 26
-        targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        minSdk = 24
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        vectorDrawables {
-            useSupportLibrary = true
-        }
+        consumerProguardFiles("consumer-rules.pro")
     }
 
     buildTypes {
@@ -42,17 +37,15 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.3"
     }
-    packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
-    }
 }
 
 dependencies {
 
-    implementation(project(":presentation-core"))
-    implementation(project(":data"))
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.appcompat)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.test.junit)
+    androidTestImplementation(libs.androidx.test.espresso.core)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.compose)
@@ -77,29 +70,22 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.manifest)
 
     implementation(libs.androidx.material3.window.size)
+}
 
-    implementation(libs.sqldelight.android.driver)
-    implementation(libs.sqldelight.extension.coroutines)
-    implementation(libs.sqldelight.extension.primitive.adapters)
-
-    implementation(libs.kotlin.serialization)
-
-    implementation(libs.koin.core)
-    implementation(libs.koin.android)
-    implementation(libs.koin.compose)
-    implementation(libs.koin.workmanager)
-    implementation(libs.koin.navigation)
-
-    implementation(libs.androidx.material.icons.extended)
-
-    implementation(libs.androidx.datastore.preferences)
-    implementation(libs.kotlin.collections.immutable)
-    implementation(libs.androidx.lifecycle.runtime.compose)
-
-    // Kotlin + coroutines
-    implementation(libs.androidx.work.runtime.ktx)
-    implementation(libs.androidx.work.gcm)
-    implementation(libs.androidx.work.multiprocess)
-    implementation(libs.androidx.work.testing)
-
+tasks {
+    // See https://kotlinlang.org/docs/reference/experimental.html#experimental-status-of-experimental-api(-markers)
+    withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+        kotlinOptions.freeCompilerArgs += listOf(
+            "-opt-in=androidx.compose.foundation.layout.ExperimentalLayoutApi",
+            "-opt-in=androidx.compose.material.ExperimentalMaterialApi",
+            "-opt-in=androidx.compose.material3.ExperimentalMaterial3Api",
+            "-opt-in=androidx.compose.material.ExperimentalMaterialApi",
+            "-opt-in=androidx.compose.ui.ExperimentalComposeUiApi",
+            "-opt-in=androidx.compose.foundation.ExperimentalFoundationApi",
+            "-opt-in=androidx.compose.animation.ExperimentalAnimationApi",
+            "-opt-in=androidx.compose.animation.graphics.ExperimentalAnimationGraphicsApi",
+            "-opt-in=coil.annotation.ExperimentalCoilApi",
+            "-opt-in=kotlinx.coroutines.FlowPreview",
+        )
+    }
 }

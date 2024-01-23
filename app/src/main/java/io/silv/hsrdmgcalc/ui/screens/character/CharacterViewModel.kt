@@ -2,63 +2,25 @@ package io.silv.hsrdmgcalc.ui.screens.character
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.silv.data.constants.Path
+import io.silv.data.constants.Type
+import io.silv.data.preferences.CardType
+import io.silv.data.preferences.DisplayPreferences
+import io.silv.data.preferences.Grouping
 import io.silv.hsrdmgcalc.ApplicationScope
-import io.silv.hsrdmgcalc.data.GetCharactersWithItems
-import io.silv.hsrdmgcalc.preferences.DisplayPreferences
-import io.silv.hsrdmgcalc.preferences.Grouping
-import io.silv.hsrdmgcalc.ui.composables.CardType
-import io.silv.hsrdmgcalc.ui.composables.Path
-import io.silv.hsrdmgcalc.ui.composables.Type
-import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class CharacterViewModel(
     private val applicationScope: ApplicationScope,
     private val displayPreferences: DisplayPreferences,
-    getCharacterWithItems: GetCharactersWithItems,
 ): ViewModel() {
 
     private val typeFilter = MutableStateFlow<Type?>(null)
     val selectedTypeFilter = typeFilter.asStateFlow()
     private val pathFilter = MutableStateFlow<Path?>(null)
     val selectedPathFilter = pathFilter.asStateFlow()
-
-    val charactersWithItems = combine(
-        getCharacterWithItems(),
-        typeFilter,
-        pathFilter,
-        displayPreferences.observePrefs().map { prefs -> prefs.characterGrouping },
-    ) { items, type, path, grouping ->
-
-        var filteredItems = items
-            .filter { item -> item.character.type == type || type == null }
-            .filter { item -> item.character.path == path || path == null }
-
-        if (grouping.fiveStarOnly)
-            filteredItems = filteredItems.filter { item -> item.character.is5star }
-        if (grouping.ownedOnly)
-            filteredItems = filteredItems.filter { item -> item.character.owned }
-
-        filteredItems = when(grouping.level) {
-            Grouping.ASC -> filteredItems.sortedBy { item -> item.character.level }
-            Grouping.DSC -> filteredItems.sortedByDescending { item -> item.character.level }
-            Grouping.NONE -> filteredItems
-        }
-
-        filteredItems.toImmutableList()
-    }
-        .stateIn(
-            viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            persistentListOf()
-        )
 
 
     fun updateGridCellCount(count: Int) {

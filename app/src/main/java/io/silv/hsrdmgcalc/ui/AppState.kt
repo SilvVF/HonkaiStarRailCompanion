@@ -21,8 +21,8 @@ import androidx.compose.ui.util.fastFirstOrNull
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.navOptions
-import io.silv.hsrdmgcalc.preferences.DisplayPreferences
-import io.silv.hsrdmgcalc.preferences.DisplayPrefs
+import io.silv.data.preferences.DisplayPreferences
+import io.silv.data.preferences.DisplayPrefs
 import io.silv.hsrdmgcalc.ui.composables.ExpandableState
 import io.silv.hsrdmgcalc.ui.composables.rememberExpandableState
 import io.silv.hsrdmgcalc.ui.navigation.HsrDestination

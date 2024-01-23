@@ -1,27 +1,25 @@
-package io.silv.hsrdmgcalc.data
+package io.silv.data
 
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOne
 import app.cash.sqldelight.coroutines.mapToOneOrNull
-import io.silv.HonkaiDatabase
 import io.silv.honkai.Character
 import io.silv.honkai.LightCone
 import io.silv.honkai.Relic
 import io.silv.honkai.SelectWithLightCone
-import io.silv.hsrdmgcalc.AppDispatchers
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 
 class HonkaiDataRepository(
-    private val database: HonkaiDatabase,
-    private val dispatchers: AppDispatchers,
+    private val database: Database,
 ) {
 
     suspend fun updateCharacter(
         name: String,
         updated: (prev: Character?) -> Character?
-    ) = withContext(dispatchers.io) {
+    ) = withContext(Dispatchers.IO) {
         val prev = database.characterQueries.selectByName(name).executeAsOneOrNull()
 
         updated(prev)?.let { updated ->
@@ -29,7 +27,7 @@ class HonkaiDataRepository(
         }
     }
 
-    suspend fun removeLightCone(id: Long): LightCone? = withContext(dispatchers.io) {
+    suspend fun removeLightCone(id: Long): LightCone? = withContext(Dispatchers.IO) {
         val deleted = database.lightConeQueries.selectById(id).executeAsOneOrNull()
         database.lightConeQueries.deleteById(id)
 
@@ -41,7 +39,7 @@ class HonkaiDataRepository(
         level: Int,
         maxLevel: Int,
         superimpose: Int,
-    ): Long = withContext(dispatchers.io) {
+    ): Long = withContext(Dispatchers.IO) {
         database.lightConeQueries.insert(
             id = null,
             name = name,
@@ -54,31 +52,31 @@ class HonkaiDataRepository(
         database.lightConeQueries.lastInsertRowId().executeAsOne()
     }
 
-    fun observeAllCharacters(): Flow<List<Character>> {
-        return database.characterQueries.selectAll().asFlow().mapToList(dispatchers.io)
+    fun observeAllCharacters(): Flow<List<io.silv.honkai.Character>> {
+        return database.characterQueries.selectAll().asFlow().mapToList(Dispatchers.IO)
     }
 
     fun observeRelicsForCharacter(name: String): Flow<List<Relic>> {
-        return database.relicQueries.selectByEquipedCharacter(name).asFlow().mapToList(dispatchers.io)
+        return database.relicQueries.selectByEquipedCharacter(name).asFlow().mapToList(Dispatchers.IO)
     }
 
     fun observeLightConeForCharacter(name: String): Flow<LightCone?> {
-        return database.lightConeQueries.selectByEquippedCharacter(name).asFlow().mapToOneOrNull(dispatchers.io)
+        return database.lightConeQueries.selectByEquippedCharacter(name).asFlow().mapToOneOrNull(Dispatchers.IO)
     }
 
     fun observeCharacterByName(name: String): Flow<Character> {
-        return database.characterQueries.selectByName(name).asFlow().mapToOne(dispatchers.io)
+        return database.characterQueries.selectByName(name).asFlow().mapToOne(Dispatchers.IO)
     }
 
     fun observeCharacterByNameWithLightCone(name: String): Flow<SelectWithLightCone> {
-        return database.characterQueries.selectWithLightCone(name).asFlow().mapToOne(dispatchers.io)
+        return database.characterQueries.selectWithLightCone(name).asFlow().mapToOne(Dispatchers.IO)
     }
 
     fun observeAllRelics(): Flow<List<Relic>> {
-        return database.relicQueries.selectAll().asFlow().mapToList(dispatchers.io)
+        return database.relicQueries.selectAll().asFlow().mapToList(Dispatchers.IO)
     }
 
     fun observeAllLightCones(): Flow<List<LightCone>> {
-        return database.lightConeQueries.selectAll().asFlow().mapToList(dispatchers.io)
+        return database.lightConeQueries.selectAll().asFlow().mapToList(Dispatchers.IO)
     }
 }

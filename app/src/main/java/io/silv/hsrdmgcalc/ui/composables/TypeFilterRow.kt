@@ -22,25 +22,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastFirstOrNull
+import io.silv.data.constants.Type
 import kotlinx.collections.immutable.persistentListOf
 
-val IMAGINARY = Color(0xffF8EB70)
-val PHYSICAL = Color(0xffC5C5C5)
-val LIGHTNING = Color(0xffDB77F4)
-val FIRE = Color(0xffE62929)
-val ICE = Color(0xff8BD4EF)
-val WIND = Color(0xff87DAA7)
-val QUANTUM = Color(0xff746DD1)
-
-enum class Type(val color: Color) {
-    Physical(PHYSICAL),
-    Fire(FIRE),
-    Ice(ICE),
-    Lightning(LIGHTNING),
-    Wind(WIND),
-    Quantum(QUANTUM),
-    Imaginary(IMAGINARY),
-}
 
 /*
 1.1	Physical

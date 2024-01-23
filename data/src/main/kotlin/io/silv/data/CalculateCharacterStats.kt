@@ -1,6 +1,7 @@
-package io.silv.hsrdmgcalc.data
+package io.silv.data
 
-
+import io.silv.data.constants.CharacterStats
+import io.silv.data.constants.HonkaiUtils
 
 
 class CalculateCharacterStats {

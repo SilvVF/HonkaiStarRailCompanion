@@ -28,7 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import io.silv.hsrdmgcalc.data.CharacterStats
+import io.silv.data.constants.CharacterStats
 
 class LevelSelectorState(
     initialFirstMax: Boolean = true,
