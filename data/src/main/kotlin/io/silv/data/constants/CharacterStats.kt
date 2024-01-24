@@ -1,21 +1,10 @@
 package io.silv.data.constants
 
+import io.silv.data.character.BaseStats
 import kotlin.math.roundToInt
-
-typealias HP = Int
-typealias ATK = Int
-typealias DEF = Int
-typealias SPD = Int
-
 
 object CharacterStats {
 
-    data class BaseStats(
-        val hp: HP,
-        val atk: ATK,
-        val def: DEF,
-        val spd: SPD
-    )
 
     val levelRanges = listOf(
         1..20,

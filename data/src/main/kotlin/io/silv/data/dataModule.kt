@@ -23,8 +23,4 @@ val dataModule = module {
     }
 
     single { WorkManager.getInstance(androidContext()) }
-
-    singleOf(::HonkaiDataRepository)
-
-    workerOf(::PrepopulateWorker)
 }

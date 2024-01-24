@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
@@ -28,6 +30,15 @@ android {
                 "proguard-rules.pro"
             )
         }
+        val properties = Properties().also {
+            it.load(project.rootProject.file("local.properties").inputStream())
+        }
+
+
+        buildTypes.onEach { buildType ->
+            buildType.buildConfigField("String", "SUPABASE_API_URL", properties.getProperty("SUPABASE_API_URL"))
+            buildType.buildConfigField("String", "SUPABASE_API_KEY", properties.getProperty("SUPABASE_API_KEY"))
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -37,10 +48,11 @@ android {
         jvmTarget = "17"
     }
     buildFeatures {
+        buildConfig = true
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.3"
+        kotlinCompilerExtensionVersion = "1.5.8"
     }
     packaging {
         resources {
@@ -52,6 +64,7 @@ android {
 dependencies {
 
     implementation(project(":presentation-core"))
+    implementation(project(":core"))
     implementation(project(":data"))
 
     implementation(libs.androidx.core.ktx)
@@ -84,6 +97,9 @@ dependencies {
 
     implementation(libs.kotlin.serialization)
 
+    implementation(libs.supabase.storage)
+    implementation(libs.supabase.gotrue.kt)
+
     implementation(libs.koin.core)
     implementation(libs.koin.android)
     implementation(libs.koin.compose)
@@ -96,10 +112,45 @@ dependencies {
     implementation(libs.kotlin.collections.immutable)
     implementation(libs.androidx.lifecycle.runtime.compose)
 
-    // Kotlin + coroutines
+    implementation(libs.voyager.koin)
+    implementation(libs.voyager.tabNavigator)
+    implementation(libs.voyager.transitions)
+    implementation(libs.voyager.navigator)
+    implementation(libs.voyager.screenModel)
+
+    implementation(libs.coil.compose)
+    implementation(libs.coil.svg)
+    implementation(libs.coil.gif)
+    implementation(libs.coil)
+
+    implementation(libs.ktor.client.okhttp)
+    implementation(libs.ktor.core)
+    implementation(libs.ktor.serialization.json)
+
+// Kotlin + coroutines
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.androidx.work.gcm)
     implementation(libs.androidx.work.multiprocess)
     implementation(libs.androidx.work.testing)
 
+    implementation(libs.haze)
+}
+
+tasks {
+    // See https://kotlinlang.org/docs/reference/experimental.html#experimental-status-of-experimental-api(-markers)
+    withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+        kotlinOptions.freeCompilerArgs += listOf(
+            "-opt-in=androidx.compose.foundation.layout.ExperimentalLayoutApi",
+            "-opt-in=androidx.compose.material.ExperimentalMaterialApi",
+            "-opt-in=androidx.compose.material3.ExperimentalMaterial3Api",
+            "-opt-in=androidx.compose.material.ExperimentalMaterialApi",
+            "-opt-in=androidx.compose.ui.ExperimentalComposeUiApi",
+            "-opt-in=androidx.compose.foundation.ExperimentalFoundationApi",
+            "-opt-in=androidx.compose.foundation.layout.ExperimentalLayoutApi",
+            "-opt-in=androidx.compose.animation.ExperimentalAnimationApi",
+            "-opt-in=androidx.compose.animation.graphics.ExperimentalAnimationGraphicsApi",
+            "-opt-in=coil.annotation.ExperimentalCoilApi",
+            "-opt-in=kotlinx.coroutines.FlowPreview",
+        )
+    }
 }
