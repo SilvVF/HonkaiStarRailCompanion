@@ -9,6 +9,7 @@ import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.kotlinx.json.json
 import io.silv.data.dataModule
+import io.silv.hsrdmgcalc.data.coil.StorageItemCache
 import io.silv.hsrdmgcalc.util.coroutine.AppDispatchers
 import io.silv.hsrdmgcalc.util.coroutine.ApplicationScope
 import io.silv.hsrdmgcalc.util.coroutine.DefaultDispatcher

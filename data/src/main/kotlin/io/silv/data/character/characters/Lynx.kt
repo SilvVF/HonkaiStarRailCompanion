@@ -12,7 +12,7 @@ object Lynx: Character {
     override val id: Long = 0L
     override val stars: Short = 5
     override val name: String = "lynx"
-    override val type: Type = Type.Ice
+    override val type: Type = Type.Quantum
     override val path: Path = Path.Destruction
 
     override val baseStats: Map<Int, Pair<BaseStats, BaseStats>> by lazy {
