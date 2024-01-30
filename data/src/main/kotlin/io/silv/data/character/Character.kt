@@ -45,5 +45,5 @@ interface Character {
     /**
      * this is the flat additional damage that appears on some skills.
       */
-    val extraDmg: Double get() = 0
+    val extraDmg: Double get() = 0.0
 }

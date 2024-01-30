@@ -3,7 +3,7 @@ package io.silv.hsrdmgcalc.ui.character
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -96,19 +97,19 @@ object CharacterTab: Tab {
                         Modifier
                             .padding(4.dp)
                             .clip(RoundedCornerShape(12.dp))
+                            .height(300.dp)
+                            .drawBehind {
+                                drawRect(
+                                    brush = Brush.verticalGradient(
+                                        colors = listOf(typeColor, backgroundColor)
+                                    )
+                                )
+                            }
                     ) {
+                        val context = LocalContext.current
                         AsyncImage(
                             model = it.toStorageItem(),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .heightIn(280.dp)
-                                .drawBehind {
-                                    drawRect(
-                                        brush = Brush.verticalGradient(
-                                            colors = listOf(typeColor, backgroundColor)
-                                        )
-                                    )
-                                },
+                            modifier = Modifier.fillMaxWidth(),
                             contentScale = ContentScale.Crop,
                             contentDescription = null
                         )

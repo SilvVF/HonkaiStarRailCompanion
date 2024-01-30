@@ -66,6 +66,7 @@ dependencies {
     implementation(project(":presentation-core"))
     implementation(project(":core"))
     implementation(project(":data"))
+    implementation(project(":coil-disk-fetcher"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.compose)

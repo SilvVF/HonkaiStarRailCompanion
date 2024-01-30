@@ -4,22 +4,22 @@ package io.silv.data.character
 operator fun BaseStats.get(
     attribute: Attribute
 ): Double = when(attribute) {
-    ATK -> atk
-    DEF -> def
-    HP -> hp
-    SPD -> spd
+    ATK -> atk.toDouble()
+    DEF -> def.toDouble()
+    HP -> hp.toDouble()
+    SPD -> spd.toDouble()
 }
 
 data class BaseStats(
-    val hp: Double,
-    val atk: Double,
-    val def: Double,
-    val spd: Double
+    val hp: Int,
+    val atk: Int,
+    val def: Int,
+    val spd: Int
 ) {
 
     companion object {
 
-        private inline fun avg(vararg nums: Double): Double {
+        private fun avg(vararg nums: Int): Int {
             return nums.asList().sum() / nums.size
         }
 

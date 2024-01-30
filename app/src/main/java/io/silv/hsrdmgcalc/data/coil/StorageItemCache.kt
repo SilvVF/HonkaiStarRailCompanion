@@ -1,6 +1,7 @@
 package io.silv.hsrdmgcalc.data.coil
 
 import android.content.Context
+import coil.request.Options
 import io.github.jan.supabase.storage.StorageItem
 import io.silv.hsrdmgcalc.DiskUtil
 import java.io.File
@@ -17,7 +18,7 @@ import java.io.InputStream
  */
 class StorageItemCache(
     private val context: Context
-) {
+): io.silv.coil_disk_fetcher.FetcherDiskStore<StorageItem> {
 
     companion object {
         private const val IMAGE_DIR = "storage"
@@ -90,7 +91,7 @@ class StorageItemCache(
         }
 
         if (deleteCustomImages) {
-            if (deleteCusomtImage(path, bucketId)) ++deleted
+            if (deleteCustomImage(path, bucketId)) ++deleted
         }
 
         return deleted
@@ -103,7 +104,7 @@ class StorageItemCache(
      * @param bucketId bucketId of the [StorageItem]
      * @return whether the cover was deleted.
      */
-    fun deleteCusomtImage(path: String, bucketId: String): Boolean {
+    fun deleteCustomImage(path: String, bucketId: String): Boolean {
         return getCustomImageFile(path, bucketId).let {
             it.exists() && it.delete()
         }
@@ -116,5 +117,9 @@ class StorageItemCache(
     private fun getCacheDir(dir: String): File {
         return context.getExternalFilesDir(dir)
             ?: File(context.filesDir, dir).also { it.mkdirs() }
+    }
+
+    override fun getImageFile(data: StorageItem, options: Options): File? {
+        return getImageFile(data.path, data.bucketId)
     }
 }
